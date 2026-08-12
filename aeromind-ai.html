@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AeroMind AI — the AI sales analyst for teams with more data than time</title>
+<meta name="description" content="AeroMind reads your sales file, shows you what's working and what's slipping, and gives you a plan to scale what already works." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0E1B2A; --ink-2:#33445A; --mute:#A7B3C1;
+    --line:rgba(14,27,42,.10); --paper:#FDFDFC;
+    --accent:#2E5BFF; --accent-deep:#12308F;
+    --bloom-warm:#FFEEDA; --bloom-sky:#D7E2FF; --bloom-mint:#DDF3E9;
+    --display:"Onest",system-ui,sans-serif;
+    --body:"Instrument Sans",system-ui,sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,monospace;
+    --wrap:1120px;
+  }
+  *{box-sizing:border-box;}
+  [hidden]{display:none !important;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);
+    font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+
+  .bloom{position:fixed;inset:0;z-index:-1;pointer-events:none;}
+  .bloom::before,.bloom::after{content:"";position:absolute;filter:blur(70px);opacity:.85;}
+  .bloom::before{top:-10vh;left:-5vw;width:75vw;height:90vh;
+    background:radial-gradient(45% 55% at 30% 30%,var(--bloom-warm) 0%,transparent 70%),
+               radial-gradient(50% 50% at 75% 60%,var(--bloom-sky) 0%,transparent 72%);}
+  .bloom::after{top:18vh;right:-15vw;width:70vw;height:80vh;
+    background:radial-gradient(50% 50% at 60% 40%,var(--bloom-mint) 0%,transparent 70%),
+               radial-gradient(45% 45% at 25% 75%,var(--bloom-sky) 0%,transparent 70%);}
+
+  .wrap{width:100%;max-width:var(--wrap);margin:0 auto;padding:0 24px;}
+  .narrow{max-width:760px;}
+
+  /* nav */
+  header{position:sticky;top:0;z-index:60;padding:18px 0 0;}
+  .nav{margin:0 auto;width:fit-content;max-width:calc(100% - 24px);
+    display:flex;align-items:center;gap:6px;padding:8px 8px 8px 18px;
+    background:rgba(255,255,255,.74);backdrop-filter:blur(18px) saturate(1.4);
+    -webkit-backdrop-filter:blur(18px) saturate(1.4);
+    border:1px solid rgba(255,255,255,.9);border-radius:999px;
+    box-shadow:0 1px 2px rgba(14,27,42,.04),0 12px 32px -18px rgba(14,27,42,.30);}
+  .brand{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--ink);margin-right:12px;}
+  .brand span{font-family:var(--display);font-weight:700;font-size:19px;letter-spacing:-.035em;}
+  .nav a.link{font-size:15px;color:var(--ink-2);text-decoration:none;padding:8px 12px;
+    border-radius:999px;transition:background .18s,color .18s;white-space:nowrap;}
+  .nav a.link:hover,.nav a.link.active{background:rgba(14,27,42,.05);color:var(--ink);}
+  .nav-links{display:flex;align-items:center;}
+  .menu-btn{display:none;background:rgba(14,27,42,.05);border:0;border-radius:999px;
+    width:40px;height:40px;cursor:pointer;align-items:center;justify-content:center;}
+  .menu-btn span{display:block;width:16px;height:1.6px;background:var(--ink);position:relative;}
+  .menu-btn span::before,.menu-btn span::after{content:"";position:absolute;left:0;width:16px;height:1.6px;background:var(--ink);}
+  .menu-btn span::before{top:-5px;} .menu-btn span::after{top:5px;}
+  .drawer{display:none;margin:10px auto 0;width:calc(100% - 24px);max-width:520px;
+    background:rgba(255,255,255,.92);backdrop-filter:blur(18px);border:1px solid var(--line);
+    border-radius:24px;padding:10px;box-shadow:0 24px 50px -30px rgba(14,27,42,.5);}
+  .drawer a{display:block;padding:12px 14px;border-radius:14px;text-decoration:none;color:var(--ink);font-size:16px;}
+  .drawer a:hover{background:rgba(14,27,42,.05);}
+  .drawer.open{display:block;}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;
+    font-family:var(--body);font-weight:600;font-size:15px;border-radius:999px;
+    border:1px solid transparent;cursor:pointer;text-decoration:none;padding:11px 20px;
+    transition:transform .16s,box-shadow .2s,background .2s;}
+  .btn-primary{background:linear-gradient(180deg,#3D68FF,#2148E6);color:#fff;
+    box-shadow:0 1px 0 rgba(255,255,255,.35) inset,0 10px 22px -12px rgba(33,72,230,.85);}
+  .btn-primary:hover{transform:translateY(-1px);}
+  .btn-ghost{background:rgba(14,27,42,.04);color:var(--ink);border-color:var(--line);}
+  .btn-ghost:hover{background:rgba(14,27,42,.07);}
+  .btn-lg{padding:16px 30px;font-size:17px;}
+  .nav .btn{padding:10px 18px;}
+
+  /* hero */
+  .hero{padding:56px 0 0;text-align:center;}
+  .pill{display:inline-flex;align-items:center;gap:10px;background:rgba(255,255,255,.75);
+    border:1px solid rgba(14,27,42,.08);border-radius:999px;padding:8px 8px 8px 16px;
+    font-size:14.5px;color:var(--ink-2);text-decoration:none;backdrop-filter:blur(10px);
+    box-shadow:0 8px 20px -16px rgba(14,27,42,.5);transition:transform .18s;}
+  .pill:hover{transform:translateY(-1px);}
+  .pill b{color:var(--ink);font-weight:600;}
+  .pill .chev{width:22px;height:22px;border-radius:50%;background:rgba(14,27,42,.06);
+    display:grid;place-items:center;font-size:12px;color:var(--ink-2);}
+  h1{font-family:var(--display);font-weight:800;font-size:clamp(2.5rem,7.2vw,5.15rem);
+    line-height:.99;letter-spacing:-.038em;margin:30px auto 0;max-width:16ch;color:var(--mute);}
+  h1 em{font-style:normal;color:var(--ink);}
+  .sub{margin:26px auto 0;max-width:48ch;font-size:clamp(1.05rem,2.1vw,1.32rem);color:var(--ink-2);line-height:1.45;}
+  .hero-cta{margin-top:36px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+  .hero-note{margin-top:18px;font-family:var(--mono);font-size:12.5px;letter-spacing:.02em;color:var(--mute);}
+
+  /* cadence */
+  .cadence{margin:84px auto 0;max-width:900px;}
+  .cadence-card{background:rgba(255,255,255,.66);border:1px solid rgba(255,255,255,.9);
+    box-shadow:0 2px 4px rgba(14,27,42,.03),0 40px 70px -50px rgba(14,27,42,.55);
+    border-radius:28px;padding:30px 28px 32px;backdrop-filter:blur(20px) saturate(1.3);
+    -webkit-backdrop-filter:blur(20px) saturate(1.3);}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--mute);margin:0 0 4px;}
+  .rail{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin:20px 0 0;
+    padding:6px;background:rgba(14,27,42,.045);border-radius:999px;}
+  .rail button{font-family:var(--body);font-size:14.5px;font-weight:500;color:var(--ink-2);
+    background:transparent;border:0;border-radius:999px;padding:9px 15px;cursor:pointer;
+    transition:background .2s,color .2s,box-shadow .2s;}
+  .rail button:hover{color:var(--ink);}
+  .rail button[aria-selected="true"]{background:#fff;color:var(--ink);font-weight:600;
+    box-shadow:0 1px 2px rgba(14,27,42,.10),0 6px 14px -8px rgba(14,27,42,.45);}
+  .cadence-out{margin-top:26px;text-align:center;min-height:96px;}
+  .cadence-out h3{font-family:var(--display);font-weight:700;letter-spacing:-.025em;
+    font-size:clamp(1.4rem,3.4vw,2rem);margin:0;}
+  .cadence-out p{margin:10px auto 0;max-width:52ch;color:var(--ink-2);font-size:16.5px;}
+  .fade-swap{animation:swap .45s ease;}
+  @keyframes swap{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+
+  /* sections + type */
+  section{padding:120px 0 0;}
+  .page-top{padding:64px 0 0;}
+  .sec-head{max-width:62ch;}
+  .sec-head.center{margin:0 auto;text-align:center;}
+  h2{font-family:var(--display);font-weight:700;letter-spacing:-.032em;
+    font-size:clamp(2rem,4.6vw,3.15rem);line-height:1.04;margin:14px 0 0;}
+  h2 .soft{color:var(--mute);}
+  h3.blk{font-family:var(--display);font-weight:700;font-size:clamp(1.35rem,3vw,1.75rem);
+    letter-spacing:-.026em;margin:44px 0 0;}
+  .sec-head p{margin:16px 0 0;color:var(--ink-2);font-size:17.5px;max-width:52ch;}
+  .sec-head.center p{margin-left:auto;margin-right:auto;}
+  .prose p{color:var(--ink-2);font-size:16.5px;margin:14px 0 0;}
+  .prose ul{margin:14px 0 0;padding-left:20px;color:var(--ink-2);font-size:16.5px;}
+  .prose li{margin:7px 0;}
+  .prose strong{color:var(--ink);font-weight:600;}
+
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-top:54px;
+    background:var(--line);border:1px solid var(--line);border-radius:24px;overflow:hidden;}
+  .cell{background:rgba(255,255,255,.62);padding:32px 28px 34px;backdrop-filter:blur(8px);}
+  .cell h4{font-family:var(--display);font-weight:600;font-size:19px;letter-spacing:-.02em;margin:14px 0 0;}
+  .cell p{margin:9px 0 0;color:var(--ink-2);font-size:15.5px;line-height:1.5;}
+  .tick{width:26px;height:2px;background:var(--accent);border-radius:2px;display:block;}
+
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;margin-top:54px;}
+  .step{padding-top:22px;border-top:1px solid var(--line);}
+  .step .num{font-family:var(--mono);font-size:12px;color:var(--accent);letter-spacing:.1em;}
+  .step h4{font-family:var(--display);font-weight:600;font-size:21px;letter-spacing:-.022em;margin:12px 0 0;}
+  .step p{margin:8px 0 0;color:var(--ink-2);font-size:15.5px;}
+
+  .deliver{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:54px;}
+  .panel{background:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.9);border-radius:24px;
+    padding:30px 26px 32px;box-shadow:0 2px 4px rgba(14,27,42,.03),0 30px 60px -50px rgba(14,27,42,.6);}
+  .panel h4{font-family:var(--display);font-weight:700;font-size:22px;letter-spacing:-.024em;margin:12px 0 0;}
+  .panel p{color:var(--ink-2);font-size:15.5px;margin:10px 0 0;}
+  .panel ul{margin:18px 0 0;padding:0;list-style:none;}
+  .panel li{font-size:15px;color:var(--ink-2);padding:9px 0;border-top:1px solid var(--line);
+    display:flex;gap:10px;align-items:baseline;}
+  .panel li::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent);flex:none;transform:translateY(-2px);}
+
+  .ask{margin-top:52px;border:1px solid rgba(14,27,42,.09);border-radius:26px;
+    background:rgba(255,255,255,.66);padding:34px 30px;backdrop-filter:blur(14px);}
+  .ask-line{display:flex;align-items:center;gap:14px;font-family:var(--display);
+    font-size:clamp(1.15rem,3vw,1.85rem);font-weight:600;letter-spacing:-.026em;min-height:2.4em;}
+  .ask-q{border-right:2px solid var(--accent);padding-right:3px;}
+  .ask-mark{flex:none;width:34px;height:34px;border-radius:11px;
+    background:linear-gradient(180deg,#3D68FF,#2148E6);display:grid;place-items:center;
+    box-shadow:0 8px 18px -10px rgba(33,72,230,.9);}
+  .ask-foot{margin-top:16px;color:var(--ink-2);font-size:15.5px;max-width:60ch;}
+
+  .band{margin-top:120px;border-radius:32px;padding:60px 44px;
+    background:linear-gradient(140deg,#0E1B2A,#16294A 55%,#12308F);color:#fff;position:relative;overflow:hidden;}
+  .band::after{content:"";position:absolute;right:-10%;bottom:-60%;width:60%;height:160%;
+    background:radial-gradient(closest-side,rgba(94,133,255,.55),transparent 70%);}
+  .band .inner{position:relative;z-index:1;max-width:52ch;}
+  .band .eyebrow{color:rgba(255,255,255,.55);}
+  .band h2{color:#fff;}
+  .band p{color:rgba(255,255,255,.76);margin-top:16px;font-size:17px;}
+  .band .btn-primary{background:#fff;color:var(--ink);box-shadow:none;margin-top:28px;}
+  .band .btn-primary:hover{background:#EEF2FF;}
+
+  .final{padding:130px 0 0;text-align:center;}
+  .final h2{max-width:18ch;margin-inline:auto;}
+
+  /* pricing */
+  .plans{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:48px;}
+  .plan{background:rgba(255,255,255,.72);border:1px solid var(--line);border-radius:24px;
+    padding:28px 24px 30px;display:flex;flex-direction:column;}
+  .plan.feature{border-color:rgba(46,91,255,.35);box-shadow:0 30px 60px -46px rgba(33,72,230,.9);}
+  .plan h4{font-family:var(--display);font-size:20px;font-weight:700;letter-spacing:-.022em;margin:0;}
+  .plan .price{font-family:var(--display);font-size:38px;font-weight:800;letter-spacing:-.04em;margin:16px 0 0;}
+  .plan .price small{font-family:var(--body);font-size:14px;font-weight:400;color:var(--mute);letter-spacing:0;}
+  .plan .desc{color:var(--ink-2);font-size:15px;margin:8px 0 0;}
+  .plan ul{list-style:none;padding:0;margin:20px 0 24px;}
+  .plan li{font-size:14.5px;color:var(--ink-2);padding:8px 0;border-top:1px solid var(--line);
+    display:flex;gap:9px;align-items:baseline;}
+  .plan li::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent);flex:none;transform:translateY(-2px);}
+  .plan .btn{margin-top:auto;width:100%;}
+  .tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--accent);background:rgba(46,91,255,.10);padding:4px 9px;border-radius:999px;align-self:flex-start;margin-bottom:12px;}
+
+  .faq{margin-top:60px;border-top:1px solid var(--line);}
+  .faq details{border-bottom:1px solid var(--line);padding:20px 0;}
+  .faq summary{font-family:var(--display);font-weight:600;font-size:18px;letter-spacing:-.02em;
+    cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:20px;}
+  .faq summary::-webkit-details-marker{display:none;}
+  .faq summary::after{content:"+";color:var(--accent);font-weight:500;}
+  .faq details[open] summary::after{content:"–";}
+  .faq p{color:var(--ink-2);font-size:16px;margin:12px 0 0;max-width:64ch;}
+
+  /* forms */
+  .form-card{margin-top:40px;background:rgba(255,255,255,.72);border:1px solid rgba(255,255,255,.9);
+    border-radius:28px;padding:32px 28px 34px;box-shadow:0 2px 4px rgba(14,27,42,.03),0 40px 70px -50px rgba(14,27,42,.55);}
+  .field{margin-top:20px;}
+  .field label{display:block;font-size:14.5px;font-weight:600;margin-bottom:7px;}
+  .field input,.field select,.field textarea{
+    width:100%;font-family:var(--body);font-size:16px;color:var(--ink);
+    background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px 15px;outline:none;
+    transition:border-color .18s,box-shadow .18s;}
+  .field textarea{min-height:130px;resize:vertical;}
+  .field input:focus,.field select:focus,.field textarea:focus{
+    border-color:var(--accent);box-shadow:0 0 0 3px rgba(46,91,255,.14);}
+  .field .hint{font-size:13px;color:var(--mute);margin-top:6px;}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .form-card .btn{margin-top:26px;}
+  .status{margin-top:16px;font-size:15px;color:var(--accent);min-height:22px;}
+  .contact-side{display:grid;grid-template-columns:1.2fr .8fr;gap:28px;align-items:start;}
+  .side-card{background:rgba(255,255,255,.6);border:1px solid var(--line);border-radius:24px;padding:26px;margin-top:40px;}
+  .side-card h4{font-family:var(--display);font-size:18px;font-weight:700;margin:0 0 6px;letter-spacing:-.02em;}
+  .side-card p{color:var(--ink-2);font-size:15px;margin:0 0 18px;}
+  .side-card a.mail{font-family:var(--mono);font-size:14px;color:var(--accent);text-decoration:none;word-break:break-all;}
+
+  /* auth */
+  .auth{max-width:460px;margin:0 auto;text-align:left;}
+  .auth h2{text-align:center;}
+  .auth .sub{text-align:center;margin-bottom:0;}
+  .auth-alt{text-align:center;margin-top:22px;font-size:15px;color:var(--ink-2);}
+  .auth-alt a{color:var(--accent);text-decoration:none;font-weight:600;}
+
+  /* values / about */
+  .vals{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;margin-top:44px;}
+  .val{border-top:1px solid var(--line);padding-top:20px;}
+  .val h4{font-family:var(--display);font-weight:600;font-size:19px;letter-spacing:-.02em;margin:10px 0 0;}
+  .val p{color:var(--ink-2);font-size:15.5px;margin:8px 0 0;}
+
+  /* footer */
+  footer{margin-top:120px;border-top:1px solid var(--line);padding:44px 0 60px;}
+  .foot{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap;align-items:flex-start;}
+  .foot-brand{max-width:34ch;}
+  .foot-brand p{color:var(--ink-2);font-size:14.5px;margin:12px 0 0;}
+  .foot-cols{display:flex;gap:64px;flex-wrap:wrap;}
+  .foot-cols h5{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--mute);margin:0 0 14px;font-weight:500;}
+  .foot-cols a{display:block;color:var(--ink-2);text-decoration:none;font-size:15px;padding:5px 0;}
+  .foot-cols a:hover{color:var(--ink);}
+  .foot-base{margin-top:44px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
+    font-family:var(--mono);font-size:12px;color:var(--mute);letter-spacing:.02em;}
+
+  .rise{opacity:0;transform:translateY(18px);}
+  .rise.in{opacity:1;transform:none;transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1);}
+  a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{
+    outline:2px solid var(--accent);outline-offset:3px;}
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important;}
+    .rise{opacity:1;transform:none;} html{scroll-behavior:auto;}
+  }
+  @media (max-width:980px){
+    .plans{grid-template-columns:1fr 1fr;}
+  }
+  @media (max-width:900px){
+    .grid,.steps,.deliver,.vals,.contact-side{grid-template-columns:1fr;}
+    .grid{border-radius:20px;}
+    .nav-links{display:none;}
+    .menu-btn{display:flex;}
+    section{padding:90px 0 0;}
+    .band{padding:44px 26px;border-radius:26px;margin-top:90px;}
+    .cadence{margin-top:64px;}
+    .cadence-card{padding:24px 18px 26px;border-radius:24px;}
+    .rail{border-radius:22px;}
+    footer{margin-top:90px;}
+  }
+  @media (max-width:620px){
+    .plans{grid-template-columns:1fr;}
+    .two{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="bloom" aria-hidden="true"></div>
+
+<header>
+  <nav class="nav">
+    <a class="brand" href="#/home" aria-label="AeroMind AI home">
+      <svg width="26" height="26" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <path d="M4 25.5 16 5.5l12 20" stroke="#0E1B2A" stroke-width="3.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M11 25.5 16 17l5 8.5" stroke="#2E5BFF" stroke-width="3.1" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>aeromind</span>
+    </a>
+    <div class="nav-links">
+      <a class="link" href="#/signals">What it finds</a>
+      <a class="link" href="#/how">How it works</a>
+      <a class="link" href="#/deliverables">Deliverables</a>
+      <a class="link" href="#/pricing">Pricing</a>
+    </div>
+    <a class="btn btn-primary" href="#/signup">Get started</a>
+    <button class="menu-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false"><span></span></button>
+  </nav>
+  <div class="drawer" id="drawer">
+    <a href="#/signals">What it finds</a>
+    <a href="#/how">How it works</a>
+    <a href="#/deliverables">Deliverables</a>
+    <a href="#/pricing">Pricing</a>
+    <a href="#/about">About</a>
+    <a href="#/contact">Contact</a>
+    <a href="#/signin">Sign in</a>
+  </div>
+</header>
+
+<main>
+
+<!-- ========================= HOME ========================= -->
+<div class="route" id="route-home">
+  <div class="wrap hero">
+    <a class="pill" href="#/how">
+      <b>New</b> Set your own reporting rhythm
+      <span class="chev" aria-hidden="true">›</span>
+    </a>
+    <h1>The <em>AI sales analyst</em> for teams with <em>more data than time</em></h1>
+    <p class="sub">Upload your sales file. AeroMind tells you what's working, what's slipping, and what to do next to grow the revenue you already have.</p>
+    <div class="hero-cta">
+      <a class="btn btn-primary btn-lg" href="#/signup">Upload your first export</a>
+      <a class="btn btn-ghost btn-lg" href="#/signup">Sign up</a>
+    </div>
+    <p class="hero-note">CSV &middot; XLSX &middot; CRM export</p>
+
+    <div class="cadence rise">
+      <div class="cadence-card">
+        <p class="eyebrow">Reporting rhythm</p>
+        <div class="rail" role="tablist" aria-label="Choose how often AeroMind runs">
+          <button role="tab" aria-selected="false" data-key="daily">Daily</button>
+          <button role="tab" aria-selected="true" data-key="weekly">Weekly</button>
+          <button role="tab" aria-selected="false" data-key="biweekly">Biweekly</button>
+          <button role="tab" aria-selected="false" data-key="monthly">Monthly</button>
+          <button role="tab" aria-selected="false" data-key="quarterly">Quarterly</button>
+          <button role="tab" aria-selected="false" data-key="biannual">Biannual</button>
+          <button role="tab" aria-selected="false" data-key="annual">Annual</button>
+        </div>
+        <div class="cadence-out" id="cadenceOut" aria-live="polite"><h3></h3><p></p></div>
+      </div>
+    </div>
+  </div>
+
+  <section>
+    <div class="wrap">
+      <div class="sec-head center rise">
+        <p class="eyebrow">What AeroMind looks for</p>
+        <h2>Your numbers are already talking. <span class="soft">Most teams only hear the total.</span></h2>
+        <p>AeroMind reads your sales file, shows you what's working and what isn't, and gives you a plan to scale what already works.</p>
+      </div>
+      <div class="grid rise">
+        <div class="cell"><span class="tick"></span><h4>Trends and patterns</h4><p>How your revenue is moving over time, and which changes are real.</p></div>
+        <div class="cell"><span class="tick"></span><h4>High-value opportunities</h4><p>The accounts, products and segments with the most room left in them.</p></div>
+        <div class="cell"><span class="tick"></span><h4>Underperformance</h4><p>Products, customers, regions and reps falling behind the rest.</p></div>
+        <div class="cell"><span class="tick"></span><h4>Declining customers</h4><p>Accounts buying less, or less often, before they say anything.</p></div>
+        <div class="cell"><span class="tick"></span><h4>Revenue at risk</h4><p>The exposure hiding behind a total that still looks healthy.</p></div>
+        <div class="cell"><span class="tick"></span><h4>Room to grow</h4><p>What's already working — and where you can do more of it.</p></div>
+      </div>
+      <div class="hero-cta rise" style="margin-top:36px;"><a class="btn btn-ghost" href="#/signals">See everything it finds</a></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="sec-head rise">
+        <p class="eyebrow">From file to action</p>
+        <h2>Three steps. <span class="soft">No data project required.</span></h2>
+      </div>
+      <div class="steps rise">
+        <div class="step"><span class="num">STEP 01</span><h4>Upload your file</h4><p>A sales spreadsheet or a CRM export. It doesn't have to be tidy.</p></div>
+        <div class="step"><span class="num">STEP 02</span><h4>AeroMind reads it</h4><p>It checks performance, trends, opportunities and risks across the whole file.</p></div>
+        <div class="step"><span class="num">STEP 03</span><h4>You get the plan</h4><p>A report, a strategy to scale what's working, and steps to take this week.</p></div>
+      </div>
+      <div class="hero-cta rise" style="margin-top:36px;justify-content:flex-start;"><a class="btn btn-ghost" href="#/how">See how it works</a></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="sec-head rise">
+        <p class="eyebrow">What you get back</p>
+        <h2>Not a dashboard to figure out. <span class="soft">A plan you can act on.</span></h2>
+        <p>Every run gives you the same three things, as often as you choose.</p>
+      </div>
+      <div class="deliver rise">
+        <div class="panel"><span class="tick"></span><h4>The report</h4><p>A plain-English read of the period.</p>
+          <ul><li>How products, customers, regions and reps performed</li><li>What went up, what went down, and by how much</li><li>Anything unusual worth a second look</li></ul></div>
+        <div class="panel"><span class="tick"></span><h4>The strategy</h4><p>Built from your own wins, not generic advice.</p>
+          <ul><li>Where to do more of what's already working</li><li>Which customers and products to push</li><li>The revenue reason behind each suggestion</li></ul></div>
+        <div class="panel"><span class="tick"></span><h4>The action plan</h4><p>Clear steps, in the order to do them.</p>
+          <ul><li>Named accounts and priorities</li><li>Who does it and what finished looks like</li><li>What to check on the next run</li></ul></div>
+      </div>
+
+      <div class="ask rise">
+        <p class="eyebrow">Ask in plain language</p>
+        <div class="ask-line">
+          <span class="ask-mark" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 32 32" fill="none"><path d="M4 25.5 16 5.5l12 20" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <span class="ask-q" id="askQ"></span>
+        </div>
+        <p class="ask-foot">Ask a question the way you'd say it out loud. The answer comes back with the numbers it came from.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <div class="band rise">
+      <div class="inner">
+        <p class="eyebrow">Your record</p>
+        <h2>Every analysis stays.</h2>
+        <p>Reports, strategies and action plans are saved run after run — so you can see what you decided last quarter, whether it worked, and what your data says now.</p>
+        <a class="btn btn-primary" href="#/signup">Start your first run</a>
+      </div>
+    </div>
+  </div>
+
+  <section class="final">
+    <div class="wrap"><div class="rise">
+      <p class="eyebrow">Get started</p>
+      <h2>Point it at your sales file. <span class="soft">See what you've been missing.</span></h2>
+      <p class="sub">Upload one file and get your first report, strategy and action plan back.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary btn-lg" href="#/signup">Upload your first export</a>
+        <a class="btn btn-ghost btn-lg" href="#/pricing">See pricing</a>
+      </div>
+    </div></div>
+  </section>
+</div>
+
+<!-- ========================= WHAT IT FINDS ========================= -->
+<div class="route" id="route-signals" hidden>
+  <div class="wrap page-top">
+    <div class="sec-head rise">
+      <p class="eyebrow">What it finds</p>
+      <h2>Six things AeroMind looks for <span class="soft">in every file you upload.</span></h2>
+      <p>You don't tell it what to check. It reads the whole file and reports back on all six.</p>
+    </div>
+
+    <div class="deliver rise" style="grid-template-columns:1fr 1fr;">
+      <div class="panel"><span class="tick"></span><h4>1. Trends and patterns</h4>
+        <p>Where your revenue is heading, not just where it landed.</p>
+        <ul><li>Growth or decline over the period you choose</li><li>Which months, products or accounts drove the change</li><li>Repeat buying patterns worth planning around</li></ul></div>
+      <div class="panel"><span class="tick"></span><h4>2. High-value opportunities</h4>
+        <p>The places where more revenue is realistically available.</p>
+        <ul><li>Customers buying one thing who could buy more</li><li>Products selling well in one region and not another</li><li>Segments with the strongest return for the effort</li></ul></div>
+      <div class="panel"><span class="tick"></span><h4>3. Underperformance</h4>
+        <p>What's falling behind the pace the rest of the book is setting.</p>
+        <ul><li>Products, customers, regions and sales reps</li><li>How far behind, and since when</li><li>Whether it's a dip or a direction</li></ul></div>
+      <div class="panel"><span class="tick"></span><h4>4. Declining customers</h4>
+        <p>Accounts drifting away quietly, while the total still looks fine.</p>
+        <ul><li>Smaller orders or longer gaps between them</li><li>Customers who stopped buying altogether</li><li>Who to call first, and why</li></ul></div>
+      <div class="panel"><span class="tick"></span><h4>5. Revenue at risk</h4>
+        <p>The exposure you'd rather find early than late.</p>
+        <ul><li>Too much revenue sitting with too few customers</li><li>Repeat business that's slowing down</li><li>Regions or products carrying more weight than they should</li></ul></div>
+      <div class="panel"><span class="tick"></span><h4>6. Room to grow</h4>
+        <p>What's already working, and how to do more of it.</p>
+        <ul><li>Your best-performing motions, named</li><li>Where the same approach could be repeated</li><li>What to scale first for the biggest effect</li></ul></div>
+    </div>
+
+    <div class="hero-cta rise" style="justify-content:flex-start;margin-top:44px;">
+      <a class="btn btn-primary btn-lg" href="#/signup">Upload your first export</a>
+      <a class="btn btn-ghost btn-lg" href="#/how">How it works</a>
+    </div>
+  </div>
+</div>
+
+<!-- ========================= HOW IT WORKS ========================= -->
+<div class="route" id="route-how" hidden>
+  <div class="wrap page-top">
+    <div class="sec-head rise">
+      <p class="eyebrow">How it works</p>
+      <h2>Upload a file. <span class="soft">Get a plan.</span></h2>
+      <p>AeroMind does the reading, the maths and the writing. You make the decisions.</p>
+    </div>
+
+    <div class="steps rise" style="grid-template-columns:1fr;gap:0;">
+      <div class="step" style="padding:26px 0;"><span class="num">STEP 01</span><h4>Upload your sales file</h4>
+        <p>A spreadsheet (CSV or XLSX) or an export from your CRM. Messy columns are fine — AeroMind maps them and shows you what it read before it starts, so you can correct anything it got wrong.</p></div>
+      <div class="step" style="padding:26px 0;"><span class="num">STEP 02</span><h4>AeroMind analyses it</h4>
+        <p>It works through every dimension in your file — products, customers, regions, reps, dates and values — looking for the six things on the "what it finds" page. Nothing is left out because it seemed small.</p></div>
+      <div class="step" style="padding:26px 0;"><span class="num">STEP 03</span><h4>You get a report, a strategy and an action plan</h4>
+        <p>The report explains the period. The strategy says where to put your effort, based on what's already working for you. The action plan turns that into ordered steps with names and priorities on them.</p></div>
+      <div class="step" style="padding:26px 0;"><span class="num">STEP 04</span><h4>Ask it anything about your data</h4>
+        <p>Type a question the way you'd ask a colleague. You get an answer with the figures behind it, so you can check the work rather than take it on trust.</p></div>
+      <div class="step" style="padding:26px 0;"><span class="num">STEP 05</span><h4>Pick your rhythm and repeat</h4>
+        <p>Run it daily, weekly, biweekly, monthly, quarterly, biannually or annually. Every run is saved, so you can look back at what you decided and whether it worked.</p></div>
+    </div>
+
+    <h3 class="blk rise">Choose how often it runs</h3>
+    <div class="cadence rise" style="margin:20px 0 0;max-width:100%;">
+      <div class="cadence-card">
+        <div class="rail" role="tablist" aria-label="Choose how often AeroMind runs" style="margin-top:0;">
+          <button role="tab" aria-selected="false" data-key="daily">Daily</button>
+          <button role="tab" aria-selected="true" data-key="weekly">Weekly</button>
+          <button role="tab" aria-selected="false" data-key="biweekly">Biweekly</button>
+          <button role="tab" aria-selected="false" data-key="monthly">Monthly</button>
+          <button role="tab" aria-selected="false" data-key="quarterly">Quarterly</button>
+          <button role="tab" aria-selected="false" data-key="biannual">Biannual</button>
+          <button role="tab" aria-selected="false" data-key="annual">Annual</button>
+        </div>
+        <div class="cadence-out" aria-live="polite"><h3></h3><p></p></div>
+      </div>
+    </div>
+
+    <div class="hero-cta rise" style="justify-content:flex-start;margin-top:44px;">
+      <a class="btn btn-primary btn-lg" href="#/signup">Get started</a>
+      <a class="btn btn-ghost btn-lg" href="#/deliverables">See what you get</a>
+    </div>
+  </div>
+</div>
+
+<!-- ========================= DELIVERABLES ========================= -->
+<div class="route" id="route-deliverables" hidden>
+  <div class="wrap page-top">
+    <div class="sec-head rise">
+      <p class="eyebrow">Deliverables</p>
+      <h2>Three things, every run. <span class="soft">Written to be used, not filed.</span></h2>
+      <p>However often you choose to run it, you get the same set.</p>
+    </div>
+
+    <div class="deliver rise">
+      <div class="panel"><span class="tick"></span><h4>The report</h4>
+        <p>What happened, in plain English.</p>
+        <ul><li>Performance by product, customer, region and rep</li><li>What changed since last time</li><li>Anything unusual worth a look</li><li>The figures behind every statement</li></ul></div>
+      <div class="panel feature"><span class="tick"></span><h4>The strategy</h4>
+        <p>Where to put your effort next.</p>
+        <ul><li>What's already working, named clearly</li><li>How to do more of it</li><li>Which customers and products to prioritise</li><li>What to stop spending time on</li></ul></div>
+      <div class="panel"><span class="tick"></span><h4>The action plan</h4>
+        <p>The steps, in order.</p>
+        <ul><li>Specific accounts to contact</li><li>Who should do it and by when</li><li>What "done" looks like for each step</li><li>What to check on the next run</li></ul></div>
+    </div>
+
+    <h3 class="blk rise">Plus, on every account</h3>
+    <div class="grid rise">
+      <div class="cell"><span class="tick"></span><h4>Plain-language questions</h4><p>Ask about your data in normal words and get answers backed by your own figures.</p></div>
+      <div class="cell"><span class="tick"></span><h4>Full history</h4><p>Every past analysis, report, strategy and action plan, kept and searchable.</p></div>
+      <div class="cell"><span class="tick"></span><h4>Your chosen rhythm</h4><p>Daily through annual. Change it whenever your business changes.</p></div>
+    </div>
+
+    <div class="hero-cta rise" style="justify-content:flex-start;margin-top:44px;">
+      <a class="btn btn-primary btn-lg" href="#/signup">Upload your first export</a>
+      <a class="btn btn-ghost btn-lg" href="#/pricing">See pricing</a>
+    </div>
+  </div>
+</div>
+
+<!-- ========================= PRICING ========================= -->
+<div class="route" id="route-pricing" hidden>
+  <div class="wrap page-top">
+    <div class="sec-head center rise">
+      <p class="eyebrow">Pricing</p>
+      <h2>Pay for the rhythm you need. <span class="soft">Change it any time.</span></h2>
+      <p>Every plan includes the report, the strategy and the action plan. The difference is how often you can run them and how much data you bring.</p>
+    </div>
+
+    <div class="plans rise">
+      <div class="plan">
+        <h4>Starter</h4>
+        <div class="price">Free</div>
+        <p class="desc">One file, one full analysis. See what it finds before you pay anything.</p>
+        <ul><li>1 analysis</li><li>Up to 1,000 rows</li><li>Report, strategy and action plan</li><li>10 questions about your data</li></ul>
+        <a class="btn btn-ghost" href="#/signup">Start free</a>
+      </div>
+      <div class="plan feature">
+        <span class="tag">Most chosen</span>
+        <h4>Growth</h4>
+        <div class="price">$47 <small>/month</small></div>
+        <p class="desc">For a team running a weekly or monthly sales rhythm.</p>
+        <ul><li>Weekly, biweekly, monthly, quarterly, biannual and annual runs</li><li>Up to 50,000 rows per file</li><li>Unlimited questions</li><li>Full analysis history</li><li>3 team members</li></ul>
+        <a class="btn btn-primary" href="#/signup">Choose Growth</a>
+      </div>
+      <div class="plan">
+        <h4>Scale</h4>
+        <div class="price">$97 <small>/month</small></div>
+        <p class="desc">For teams who want a read every morning, not every Monday.</p>
+        <ul><li>Everything in Growth, plus daily runs</li><li>Up to 500,000 rows per file</li><li>Multiple data sets side by side</li><li>10 team members</li><li>Priority support</li></ul>
+        <a class="btn btn-ghost" href="#/signup">Choose Scale</a>
+      </div>
+      <div class="plan">
+        <h4>Enterprise</h4>
+        <div class="price">Custom</div>
+        <p class="desc">For larger sales organisations with their own requirements.</p>
+        <ul><li>Unlimited rows and team members</li><li>Custom analysis rules</li><li>Single sign-on</li><li>Dedicated support</li></ul>
+        <a class="btn btn-ghost" href="#/contact">Talk to us</a>
+      </div>
+    </div>
+
+    <div class="faq rise">
+      <details><summary>Do I need my data in a particular format?</summary><p>No. Upload a CSV, an XLSX or an export from your CRM. AeroMind maps your columns and shows you what it read before it runs, so you can fix anything it misread.</p></details>
+      <details><summary>Can I change plans later?</summary><p>Yes, at any time. Moving up takes effect immediately; moving down takes effect at your next billing date.</p></details>
+      <details><summary>What happens to my past reports if I cancel?</summary><p>You can export everything before your account closes. After that, your data is deleted according to the schedule on the privacy page.</p></details>
+      <details><summary>Is my sales data used to train anything?</summary><p>No. Your data is used to produce your analysis and nothing else. See the security page for the detail.</p></details>
+      <details><summary>Can I run more than one business or dataset?</summary><p>Yes on Scale and Enterprise. Starter and Growth cover one data set at a time.</p></details>
+    </div>
+
+    <div class="hero-cta rise" style="margin-top:48px;"><a class="btn btn-primary btn-lg" href="#/signup">Start free</a></div>
+  </div>
+</div>
+
+<!-- ========================= ABOUT ========================= -->
+<div class="route" id="route-about" hidden>
+  <div class="wrap page-top narrow">
+    <div class="sec-head rise">
+      <p class="eyebrow">About</p>
+      <h2>Most sales data is stored, <span class="soft">not read.</span></h2>
+    </div>
+    <div class="prose rise">
+      <p>Almost every business already has the information it needs to grow: which customers are worth more attention, which products are quietly carrying the year, which accounts have started to slip. It's sitting in a spreadsheet or a CRM export that nobody has time to work through properly.</p>
+      <p>AeroMind exists to close that gap. You upload the file you already have. It reads all of it — every product, customer, region and rep — and comes back with a report you can understand, a strategy built on what's already working for you, and a list of things to do next.</p>
+      <p>We built it for the people who own the number: founders, sales leads and small commercial teams who don't have an analyst on staff and don't want a dashboard project. The aim is simple. Open the email, read the plan, get on with the week.</p>
+      <h3 class="blk">What we believe</h3>
+    </div>
+    <div class="vals rise">
+      <div class="val"><span class="tick"></span><h4>Show the numbers</h4><p>Every statement comes with the figures behind it. If you can't check it, you shouldn't have to trust it.</p></div>
+      <div class="val"><span class="tick"></span><h4>Plain language wins</h4><p>An insight nobody understands isn't an insight. We write in sentences, not chart titles.</p></div>
+      <div class="val"><span class="tick"></span><h4>Advice needs a next step</h4><p>Analysis that ends at "revenue is down" isn't finished. It ends when you know what to do on Monday.</p></div>
+    </div>
+    <div class="hero-cta rise" style="justify-content:flex-start;margin-top:44px;">
+      <a class="btn btn-primary btn-lg" href="#/signup">Try it with your data</a>
+      <a class="btn btn-ghost btn-lg" href="#/contact">Get in touch</a>
+    </div>
+  </div>
+</div>
+
+<!-- ========================= CAREERS ========================= -->
+<div class="route" id="route-careers" hidden>
+  <div class="wrap page-top narrow">
+    <div class="sec-head rise">
+      <p class="eyebrow">Careers</p>
+      <h2>We hire for the work, <span class="soft">not the CV.</span></h2>
+      <p>We're a small team. Rather than posting roles we may fill in three months, we keep this form open — tell us what you're good at and what you'd want to own here.</p>
+    </div>
+
+    <div class="prose rise">
+      <p>We're usually interested in people who work on: <strong>applied AI and data analysis</strong>, <strong>full-stack product engineering</strong>, <strong>product design</strong>, <strong>sales and growth</strong>, and <strong>customer support</strong>. If your work sits somewhere near those and you can show it, send it over.</p>
+    </div>
+
+    <form class="form-card rise" id="careersForm" novalidate>
+      <p class="eyebrow">Application</p>
+      <div class="two">
+        <div class="field"><label for="c-name">Full name</label><input id="c-name" name="name" type="text" required placeholder="Your name"></div>
+        <div class="field"><label for="c-email">Email</label><input id="c-email" name="email" type="email" required placeholder="you@email.com"></div>
+      </div>
+      <div class="two">
+        <div class="field"><label for="c-role">Area of expertise</label>
+          <select id="c-role" name="role">
+            <option>AI / data analysis</option>
+            <option>Software engineering</option>
+            <option>Product design</option>
+            <option>Sales and growth</option>
+            <option>Customer support</option>
+            <option>Marketing and content</option>
+            <option>Something else</option>
+          </select></div>
+        <div class="field"><label for="c-years">Years of experience</label>
+          <select id="c-years" name="years">
+            <option>Under 2</option><option>2–4</option><option>5–8</option><option>9+</option>
+          </select></div>
+      </div>
+      <div class="two">
+        <div class="field"><label for="c-loc">Where you're based</label><input id="c-loc" name="location" type="text" placeholder="City, country"></div>
+        <div class="field"><label for="c-link">Portfolio, GitHub or LinkedIn</label><input id="c-link" name="link" type="url" placeholder="https://"></div>
+      </div>
+      <div class="field"><label for="c-work">What's the best thing you've built or sold, and what was your part in it?</label>
+        <textarea id="c-work" name="work" required placeholder="Keep it specific — what you did, and what happened as a result."></textarea></div>
+      <div class="field"><label for="c-why">Why AeroMind, and what would you want to own?</label>
+        <textarea id="c-why" name="why" placeholder="A few sentences is plenty."></textarea></div>
+      <button class="btn btn-primary btn-lg" type="submit">Send application</button>
+      <p class="status" id="careersStatus" role="status"></p>
+      <p class="field hint" style="margin-top:4px;">Your application opens in your email app addressed to official@aeromindai.space, so you can attach a CV before sending.</p>
+    </form>
+  </div>
+</div>
+
+<!-- ========================= CONTACT ========================= -->
+<div class="route" id="route-contact" hidden>
+  <div class="wrap page-top">
+    <div class="sec-head rise">
+      <p class="eyebrow">Contact</p>
+      <h2>Tell us what you need. <span class="soft">We'll come back to you.</span></h2>
+      <p>Questions about the product, pricing, your data, or a larger rollout — this reaches the whole team.</p>
+    </div>
+
+    <div class="contact-side">
+      <form class="form-card rise" id="contactForm" novalidate>
+        <p class="eyebrow">Send an enquiry</p>
+        <div class="two">
+          <div class="field"><label for="k-name">Your name</label><input id="k-name" name="name" type="text" required placeholder="Your name"></div>
+          <div class="field"><label for="k-email">Email</label><input id="k-email" name="email" type="email" required placeholder="you@company.com"></div>
+        </div>
+        <div class="two">
+          <div class="field"><label for="k-company">Company</label><input id="k-company" name="company" type="text" placeholder="Optional"></div>
+          <div class="field"><label for="k-topic">What's it about?</label>
+            <select id="k-topic" name="topic">
+              <option>Product question</option><option>Pricing</option><option>Enterprise / larger team</option>
+              <option>Data and security</option><option>Support</option><option>Partnership</option><option>Something else</option>
+            </select></div>
+        </div>
+        <div class="field"><label for="k-msg">Your enquiry</label>
+          <textarea id="k-msg" name="message" required placeholder="Tell us what you're trying to do and we'll tell you whether AeroMind can help."></textarea></div>
+        <button class="btn btn-primary btn-lg" type="submit">Send enquiry</button>
+        <p class="status" id="contactStatus" role="status"></p>
+      </form>
+
+      <div class="side-card rise">
+        <h4>Email us directly</h4>
+        <p>Prefer your own inbox? Send your name and your enquiry to:</p>
+        <a class="mail" href="mailto:official@aeromindai.space">official@aeromindai.space</a>
+        <h4 style="margin-top:26px;">Response time</h4>
+        <p style="margin-bottom:0;">We answer enquiries within two working days. Support requests from paying accounts come first.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================= SIGN UP ========================= -->
+<div class="route" id="route-signup" hidden>
+  <div class="wrap page-top">
+    <div class="auth">
+      <h2 style="text-align:center;">Create your account</h2>
+      <p class="sub">Start free with one file. No card needed.</p>
+      <form class="form-card" id="signupForm" novalidate>
+        <div class="field"><label for="s-name">Full name</label><input id="s-name" type="text" required placeholder="Your name"></div>
+        <div class="field"><label for="s-email">Work email</label><input id="s-email" type="email" required placeholder="you@company.com"></div>
+        <div class="field"><label for="s-company">Company</label><input id="s-company" type="text" placeholder="Optional"></div>
+        <div class="field"><label for="s-pass">Password</label><input id="s-pass" type="password" required placeholder="At least 8 characters">
+          <p class="hint">Use 8 characters or more.</p></div>
+        <button class="btn btn-primary btn-lg" type="submit" style="width:100%;">Create account</button>
+        <p class="status" id="signupStatus" role="status"></p>
+      </form>
+      <p class="auth-alt">Already have an account? <a href="#/signin">Sign in</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- ========================= SIGN IN ========================= -->
+<div class="route" id="route-signin" hidden>
+  <div class="wrap page-top">
+    <div class="auth">
+      <h2 style="text-align:center;">Sign in</h2>
+      <p class="sub">Welcome back.</p>
+      <form class="form-card" id="signinForm" novalidate>
+        <div class="field"><label for="i-email">Email</label><input id="i-email" type="email" required placeholder="you@company.com"></div>
+        <div class="field"><label for="i-pass">Password</label><input id="i-pass" type="password" required placeholder="Your password"></div>
+        <button class="btn btn-primary btn-lg" type="submit" style="width:100%;">Sign in</button>
+        <p class="status" id="signinStatus" role="status"></p>
+      </form>
+      <p class="auth-alt">New here? <a href="#/signup">Create an account</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- ========================= PRIVACY ========================= -->
+<div class="route" id="route-privacy" hidden>
+  <div class="wrap page-top narrow">
+    <div class="sec-head rise">
+      <p class="eyebrow">Legal</p>
+      <h2>Privacy policy</h2>
+      <p>How AeroMind AI collects, uses and protects information. Last updated 9 August 2026.</p>
+    </div>
+    <div class="prose rise">
+      <h3 class="blk">1. Who we are</h3>
+      <p>AeroMind AI ("AeroMind", "we", "us") provides sales analysis software at aeromindai.space. For anything in this policy, contact <a href="mailto:official@aeromindai.space">official@aeromindai.space</a>.</p>
+
+      <h3 class="blk">2. What we collect</h3>
+      <ul>
+        <li><strong>Account information</strong> — your name, email address, company name and password (stored hashed, never in plain text).</li>
+        <li><strong>Data you upload</strong> — the sales spreadsheets and CRM exports you choose to analyse, and the analyses produced from them.</li>
+        <li><strong>Usage information</strong> — pages visited, features used, and technical details such as browser type and approximate location from your IP address.</li>
+        <li><strong>Billing information</strong> — handled by our payment processor. We never see or store your full card number.</li>
+      </ul>
+
+      <h3 class="blk">3. Why we use it</h3>
+      <ul>
+        <li>To produce the reports, strategies and action plans you ask for.</li>
+        <li>To create and secure your account, and to provide support.</li>
+        <li>To take payment for paid plans.</li>
+        <li>To improve the product — using aggregated usage patterns, not the contents of your files.</li>
+        <li>To send service messages. Marketing email is opt-in and you can stop it at any time.</li>
+      </ul>
+
+      <h3 class="blk">4. Your uploaded data</h3>
+      <p>Your sales data belongs to you. We use it to generate your analysis and for no other purpose. We do not sell it, we do not share it with other customers, and we do not use it to train public AI models. Access inside AeroMind is limited to the small number of staff who need it to run the service or to help you with a support request, and that access is logged.</p>
+
+      <h3 class="blk">5. Who we share with</h3>
+      <p>We use a limited set of processors to run AeroMind: cloud hosting, AI model processing, payment processing, email delivery and error monitoring. Each is bound by contract to protect your information and to use it only to provide their service to us. We also disclose information where the law requires it.</p>
+
+      <h3 class="blk">6. How long we keep it</h3>
+      <p>Uploaded files and their analyses are kept while your account is active. If you delete a file or an analysis, it is removed from live systems immediately and from backups within 30 days. If you close your account, we delete your data within 30 days, except records we must keep for accounting or legal reasons.</p>
+
+      <h3 class="blk">7. Your rights</h3>
+      <p>You can ask us to give you a copy of your data, correct it, delete it, or restrict how we use it. Write to <a href="mailto:official@aeromindai.space">official@aeromindai.space</a> and we will respond within 30 days. Depending on where you live, you may also have the right to complain to a data protection regulator.</p>
+
+      <h3 class="blk">8. Cookies</h3>
+      <p>We use cookies that are necessary to keep you signed in and to keep the service secure, plus basic analytics to understand which pages are used. You can block cookies in your browser, though the signed-in product will not work properly without the necessary ones.</p>
+
+      <h3 class="blk">9. International transfers</h3>
+      <p>Our infrastructure may process data in countries other than your own. Where that happens, we rely on recognised safeguards such as standard contractual clauses.</p>
+
+      <h3 class="blk">10. Changes</h3>
+      <p>If we change this policy in a way that materially affects you, we will email you before it takes effect. The date at the top always shows the current version.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ========================= TERMS ========================= -->
+<div class="route" id="route-terms" hidden>
+  <div class="wrap page-top narrow">
+    <div class="sec-head rise">
+      <p class="eyebrow">Legal</p>
+      <h2>Terms of service</h2>
+      <p>The agreement between you and AeroMind AI. Last updated 9 August 2026.</p>
+    </div>
+    <div class="prose rise">
+      <h3 class="blk">1. Agreement</h3>
+      <p>By creating an account or using AeroMind, you agree to these terms. If you are agreeing on behalf of a company, you confirm you are authorised to do so.</p>
+
+      <h3 class="blk">2. Your account</h3>
+      <p>You must give accurate registration details, keep your password secure, and be at least 18 years old. You are responsible for everything that happens under your account, including actions by team members you invite.</p>
+
+      <h3 class="blk">3. Your data and your rights in it</h3>
+      <p>You keep all rights in the files you upload and the analyses produced from them. You grant us a limited licence to process that data solely to provide the service to you. You confirm you have the right to upload the data you provide, including any personal information about your customers.</p>
+
+      <h3 class="blk">4. Acceptable use</h3>
+      <ul>
+        <li>Don't upload data you have no right to use.</li>
+        <li>Don't attempt to break, overload, reverse-engineer or gain unauthorised access to the service.</li>
+        <li>Don't resell or white-label AeroMind without a written agreement.</li>
+        <li>Don't use the service for anything unlawful.</li>
+      </ul>
+
+      <h3 class="blk">5. Plans, billing and cancellation</h3>
+      <p>Paid plans are billed in advance each month unless stated otherwise. Prices are shown on the pricing page and may change with 30 days' notice. You can cancel at any time; your plan then runs to the end of the paid period. Payments already made are non-refundable except where the law requires otherwise.</p>
+
+      <h3 class="blk">6. About the analysis</h3>
+      <p>AeroMind produces analysis, suggestions and plans generated by AI from the data you provide. It is decision support, not professional financial, legal or accounting advice. Output depends on the quality and completeness of your data. You are responsible for reviewing it and for the business decisions you make.</p>
+
+      <h3 class="blk">7. Availability</h3>
+      <p>We work to keep AeroMind available and will give notice of planned maintenance where we can, but we don't guarantee uninterrupted service.</p>
+
+      <h3 class="blk">8. Intellectual property</h3>
+      <p>The AeroMind software, brand and interface remain ours. These terms give you a right to use the service, not to own any part of it.</p>
+
+      <h3 class="blk">9. Liability</h3>
+      <p>To the extent the law allows, we are not liable for lost profits, lost revenue or indirect losses, and our total liability in any 12-month period is limited to the amount you paid us in that period. Nothing here excludes liability that cannot legally be excluded.</p>
+
+      <h3 class="blk">10. Suspension and termination</h3>
+      <p>We may suspend or close an account that breaches these terms or puts the service or other customers at risk. You can close your account at any time from your settings.</p>
+
+      <h3 class="blk">11. Changes to these terms</h3>
+      <p>We will notify you by email before material changes take effect. Continuing to use AeroMind afterwards means you accept the updated terms.</p>
+
+      <h3 class="blk">12. Contact</h3>
+      <p>Questions about these terms: <a href="mailto:official@aeromindai.space">official@aeromindai.space</a>.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ========================= SECURITY ========================= -->
+<div class="route" id="route-security" hidden>
+  <div class="wrap page-top narrow">
+    <div class="sec-head rise">
+      <p class="eyebrow">Legal</p>
+      <h2>Security</h2>
+      <p>How we protect the data you upload. Last updated 9 August 2026.</p>
+    </div>
+    <div class="prose rise">
+      <h3 class="blk">Encryption</h3>
+      <p>All traffic between you and AeroMind runs over TLS 1.2 or higher. Files and analyses are encrypted at rest using AES-256 on managed cloud storage.</p>
+
+      <h3 class="blk">Access control</h3>
+      <p>Access to production systems is limited to staff who need it, protected by multi-factor authentication and reviewed regularly. Every access to customer data is logged. Inside the product, your data is only visible to members of your own workspace.</p>
+
+      <h3 class="blk">How your data is processed</h3>
+      <p>Your files are processed to produce your analysis and nothing else. They are not used to train public AI models, and they are not shared with other customers. Model processing runs under contracts that prohibit retention of your content for training.</p>
+
+      <h3 class="blk">Infrastructure</h3>
+      <p>AeroMind runs on established cloud infrastructure with network isolation, managed patching and continuous monitoring. Backups are encrypted and tested.</p>
+
+      <h3 class="blk">Deletion</h3>
+      <p>Deleting a file or an analysis removes it from live systems straight away and from backups within 30 days. Closing your account deletes your data within 30 days, apart from records we must keep by law.</p>
+
+      <h3 class="blk">Incidents</h3>
+      <p>We have a documented incident response process. If a breach affects your data, we will notify you and any relevant regulator without undue delay, and tell you what happened and what we did about it.</p>
+
+      <h3 class="blk">Reporting a vulnerability</h3>
+      <p>If you believe you've found a security issue, email <a href="mailto:official@aeromindai.space">official@aeromindai.space</a> with the details. Please give us reasonable time to fix it before making it public. We'll confirm receipt within two working days.</p>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div class="foot-brand">
+        <a class="brand" href="#/home" aria-label="AeroMind AI home">
+          <svg width="26" height="26" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+            <path d="M4 25.5 16 5.5l12 20" stroke="#0E1B2A" stroke-width="3.1" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M11 25.5 16 17l5 8.5" stroke="#2E5BFF" stroke-width="3.1" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>aeromind</span>
+        </a>
+        <p>Sales intelligence for teams who'd rather act on their data than admire it.</p>
+      </div>
+      <div class="foot-cols">
+        <div><h5>Product</h5>
+          <a href="#/signals">What it finds</a>
+          <a href="#/how">How it works</a>
+          <a href="#/deliverables">Deliverables</a>
+          <a href="#/pricing">Pricing</a>
+        </div>
+        <div><h5>Company</h5>
+          <a href="#/about">About</a>
+          <a href="#/careers">Careers</a>
+          <a href="#/contact">Contact</a>
+        </div>
+        <div><h5>Legal</h5>
+          <a href="#/privacy">Privacy</a>
+          <a href="#/terms">Terms</a>
+          <a href="#/security">Security</a>
+        </div>
+      </div>
+    </div>
+    <div class="foot-base">
+      <span>© 2026 AeroMind AI</span>
+      <span>official@aeromindai.space</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var ROUTES = ['home','signals','how','deliverables','pricing','about','careers','contact','signup','signin','privacy','terms','security'];
+
+  /* ---------- reveal ---------- */
+  var io = new IntersectionObserver(function(en){
+    en.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  },{threshold:0.08, rootMargin:'0px 0px -30px'});
+  function reveal(root){ root.querySelectorAll('.rise').forEach(function(n){ io.observe(n); }); }
+
+  /* ---------- router ---------- */
+  function currentRoute(){
+    var h = (location.hash || '').replace(/^#\/?/,'').split('#')[0].toLowerCase();
+    return ROUTES.indexOf(h) > -1 ? h : 'home';
+  }
+  function render(){
+    var r = currentRoute();
+    ROUTES.forEach(function(name){
+      var el = document.getElementById('route-'+name);
+      if(el) el.hidden = (name !== r);
+    });
+    document.querySelectorAll('.nav a.link').forEach(function(a){
+      a.classList.toggle('active', a.getAttribute('href') === '#/'+r);
+    });
+    var active = document.getElementById('route-'+r);
+    if(active) reveal(active);
+    document.getElementById('drawer').classList.remove('open');
+    document.getElementById('menuBtn').setAttribute('aria-expanded','false');
+    window.scrollTo(0,0);
+    document.title = ({
+      home:'AeroMind AI — the AI sales analyst for teams with more data than time',
+      signals:'What AeroMind finds — AeroMind AI', how:'How it works — AeroMind AI',
+      deliverables:'What you get — AeroMind AI', pricing:'Pricing — AeroMind AI',
+      about:'About — AeroMind AI', careers:'Careers — AeroMind AI', contact:'Contact — AeroMind AI',
+      signup:'Create your account — AeroMind AI', signin:'Sign in — AeroMind AI',
+      privacy:'Privacy policy — AeroMind AI', terms:'Terms of service — AeroMind AI',
+      security:'Security — AeroMind AI'
+    })[r];
+  }
+  window.addEventListener('hashchange', render);
+
+  /* mobile menu */
+  var menuBtn = document.getElementById('menuBtn'), drawer = document.getElementById('drawer');
+  menuBtn.addEventListener('click', function(){
+    var open = drawer.classList.toggle('open');
+    menuBtn.setAttribute('aria-expanded', open ? 'true':'false');
+  });
+
+  /* ---------- cadence rails (works on every page that has one) ---------- */
+  var copy = {
+    daily:    ["A fresh read every morning.","Best when a week is too long to wait — you see yesterday's movement before today's calls start."],
+    weekly:   ["One report every week.","The rhythm most sales teams run on: analysis on Monday, a plan for the five days ahead."],
+    biweekly: ["Every other week.","Matched to a two-week sprint, so each plan gets a full cycle before the next one lands."],
+    monthly:  ["A month, closed and explained.","Full-month performance with next month's strategy attached."],
+    quarterly:["Quarter in review.","Sized for a leadership or board conversation: what the quarter did, and where the next one should go."],
+    biannual: ["Half a year, end to end.","Long enough to tell a real trend from a good month. Built for planning cycles."],
+    annual:   ["The full year.","Everything that shaped the year, and the strategy to carry into the next one."]
+  };
+  document.querySelectorAll('.cadence-card').forEach(function(card){
+    var rail = card.querySelector('.rail'), out = card.querySelector('.cadence-out');
+    function draw(key){
+      out.querySelector('h3').textContent = copy[key][0];
+      out.querySelector('p').textContent  = copy[key][1];
+      if(!reduce){ out.classList.remove('fade-swap'); void out.offsetWidth; out.classList.add('fade-swap'); }
+    }
+    rail.addEventListener('click', function(e){
+      var b = e.target.closest('button'); if(!b) return;
+      rail.querySelectorAll('button').forEach(function(x){ x.setAttribute('aria-selected','false'); });
+      b.setAttribute('aria-selected','true'); draw(b.dataset.key);
+    });
+    draw('weekly');
+  });
+
+  /* ---------- rotating questions ---------- */
+  var qs = ["Which customers are spending less than they were?",
+            "What is actually driving growth this quarter?",
+            "Which region is underperforming, and by how much?",
+            "Where is my revenue most exposed right now?",
+            "Which products deserve more of the team's time?"];
+  var el = document.getElementById('askQ');
+  if(el){
+    if(reduce){ el.textContent = qs[0]; }
+    else{
+      var qi=0, ci=0, del=false;
+      (function type(){
+        var q = qs[qi];
+        el.textContent = del ? q.slice(0,--ci) : q.slice(0,++ci);
+        var w = del ? 22 : 42;
+        if(!del && ci===q.length){ del=true; w=2100; }
+        else if(del && ci===0){ del=false; qi=(qi+1)%qs.length; w=320; }
+        setTimeout(type,w);
+      })();
+    }
+  }
+
+  /* ---------- forms ---------- */
+  var MAIL = 'official@aeromindai.space';
+  function val(id){ var n=document.getElementById(id); return n ? n.value.trim() : ''; }
+  function need(ids, statusEl){
+    for(var i=0;i<ids.length;i++){
+      var n=document.getElementById(ids[i]);
+      if(n && !n.value.trim()){ n.focus(); statusEl.style.color='#C2410C'; statusEl.textContent='Please fill in every required field.'; return false; }
+    }
+    return true;
+  }
+  function send(subject, body, statusEl, msg){
+    statusEl.style.color=''; statusEl.textContent = msg;
+    window.location.href = 'mailto:'+MAIL+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+  }
+
+  var cf = document.getElementById('careersForm');
+  if(cf) cf.addEventListener('submit', function(e){
+    e.preventDefault();
+    var s = document.getElementById('careersStatus');
+    if(!need(['c-name','c-email','c-work'], s)) return;
+    send('Application — '+val('c-role')+' — '+val('c-name'),
+      'Name: '+val('c-name')+'\nEmail: '+val('c-email')+'\nExpertise: '+val('c-role')+
+      '\nExperience: '+val('c-years')+' years\nBased in: '+val('c-loc')+'\nLink: '+val('c-link')+
+      '\n\nBest thing built or sold:\n'+val('c-work')+'\n\nWhy AeroMind:\n'+val('c-why')+'\n',
+      s, 'Opening your email app — attach your CV and press send.');
+  });
+
+  var kf = document.getElementById('contactForm');
+  if(kf) kf.addEventListener('submit', function(e){
+    e.preventDefault();
+    var s = document.getElementById('contactStatus');
+    if(!need(['k-name','k-email','k-msg'], s)) return;
+    send('['+val('k-topic')+'] Enquiry from '+val('k-name'),
+      'Name: '+val('k-name')+'\nEmail: '+val('k-email')+'\nCompany: '+val('k-company')+
+      '\nTopic: '+val('k-topic')+'\n\nEnquiry:\n'+val('k-msg')+'\n',
+      s, 'Opening your email app to send this to '+MAIL+'.');
+  });
+
+  var sf = document.getElementById('signupForm');
+  if(sf) sf.addEventListener('submit', function(e){
+    e.preventDefault();
+    var s = document.getElementById('signupStatus');
+    if(!need(['s-name','s-email','s-pass'], s)) return;
+    s.style.color=''; s.textContent = 'Thanks — accounts open when AeroMind launches. We\u2019ll email '+val('s-email')+' the moment it does.';
+    sf.reset();
+  });
+
+  var nf = document.getElementById('signinForm');
+  if(nf) nf.addEventListener('submit', function(e){
+    e.preventDefault();
+    var s = document.getElementById('signinStatus');
+    if(!need(['i-email','i-pass'], s)) return;
+    s.style.color=''; s.textContent = 'Sign-in opens with launch. Create an account and we\u2019ll let you know.';
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
