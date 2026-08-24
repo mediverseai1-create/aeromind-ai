@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,7 +20,6 @@ const SIZES = ["1–10", "11–50", "51–200", "201–1,000", "1,000+"];
 const ROLES = ["Founder / CEO", "Sales leader", "Sales rep", "RevOps / sales ops", "Other"];
 
 export default function OnboardingForm() {
-  const router = useRouter();
   const supabase = createClient();
   const [status, setStatus] = useState<{ text: string; err?: boolean } | null>(null);
   const {
@@ -66,8 +64,8 @@ export default function OnboardingForm() {
       return;
     }
 
-    router.push("/app/upload");
-    router.refresh();
+    // Full page load, not router.push — see the note in signin/page.tsx.
+    window.location.assign("/app/upload");
   }
 
   return (

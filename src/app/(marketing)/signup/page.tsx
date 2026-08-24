@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,7 +8,6 @@ import { signUpSchema, type SignUpValues } from "@/lib/validation/schemas";
 import { createClient } from "@/lib/supabase/client";
 
 export default function SignUpPage() {
-  const router = useRouter();
   const supabase = createClient();
   const [status, setStatus] = useState<{ text: string; err?: boolean } | null>(null);
   const {
@@ -34,7 +32,8 @@ export default function SignUpPage() {
     }
 
     if (data.session) {
-      router.push("/onboarding");
+      // Full page load, not router.push — see the note in signin/page.tsx.
+      window.location.assign("/onboarding");
       return;
     }
 

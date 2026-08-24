@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,7 +10,6 @@ import { signInSchema, type SignInValues } from "@/lib/validation/schemas";
 import { createClient } from "@/lib/supabase/client";
 
 function SignInForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const supabase = createClient();
   const [status, setStatus] = useState<{ text: string; err?: boolean } | null>(null);
@@ -27,8 +26,11 @@ function SignInForm() {
       setStatus({ text: error.message, err: true });
       return;
     }
-    router.push(searchParams.get("next") || "/app");
-    router.refresh();
+    // A full page load (not router.push) so the request to the protected
+    // route is guaranteed to carry the just-set session cookie — a soft
+    // client-side navigation can race ahead of the cookie write and bounce
+    // back to /signin via the middleware's auth check.
+    window.location.assign(searchParams.get("next") || "/app");
   }
 
   return (
