@@ -1,12 +1,13 @@
 import Link from "next/link";
 import Rise from "@/components/marketing/Rise";
 import PlanButton from "@/components/marketing/PlanButton";
+import { getProfessionalPaymentLink, getBusinessPaymentLink } from "@/lib/env/paymentLinks";
 
 export const metadata = { title: "Pricing — AeroMind AI" };
 
 export default function PricingPage() {
-  const professionalLink = process.env.PROFESSIONAL_PAYMENT_LINK;
-  const businessLink = process.env.BUSINESS_PAYMENT_LINK;
+  const professionalLink = getProfessionalPaymentLink();
+  const businessLink = getBusinessPaymentLink();
 
   return (
     <div className="wrap page-top">

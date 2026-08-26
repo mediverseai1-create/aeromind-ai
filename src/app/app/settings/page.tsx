@@ -6,6 +6,7 @@ import OrgForm from "@/components/dashboard/OrgForm";
 import PlanButton from "@/components/marketing/PlanButton";
 import { signOutAction } from "@/app/actions/auth";
 import { getCurrentWallet } from "@/lib/credits/wallet";
+import { getProfessionalPaymentLink, getBusinessPaymentLink } from "@/lib/env/paymentLinks";
 
 export const metadata = { title: "Settings — AeroMind AI" };
 
@@ -42,8 +43,8 @@ export default async function SettingsPage() {
       .limit(15),
   ]);
 
-  const professionalLink = process.env.PROFESSIONAL_PAYMENT_LINK;
-  const businessLink = process.env.BUSINESS_PAYMENT_LINK;
+  const professionalLink = getProfessionalPaymentLink();
+  const businessLink = getBusinessPaymentLink();
   const canEdit = current.role === "owner" || current.role === "admin";
   const plan = wallet?.plan ?? "free";
   const remaining = wallet ? Math.max(0, wallet.remaining) : 0;
