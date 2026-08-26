@@ -5,14 +5,25 @@ import ProfileForm from "@/components/dashboard/ProfileForm";
 import OrgForm from "@/components/dashboard/OrgForm";
 import PlanButton from "@/components/marketing/PlanButton";
 import { signOutAction } from "@/app/actions/auth";
+import { getCurrentWallet } from "@/lib/credits/wallet";
 
 export const metadata = { title: "Settings — AeroMind AI" };
 
 const PLAN_LABEL: Record<string, string> = {
-  starter: "Starter — Free",
-  growth: "Growth — $47/month",
-  scale: "Scale — $97/month",
-  enterprise: "Enterprise — Custom",
+  free: "Free — $0/month",
+  professional: "Professional — $47/month",
+  business: "Business — $97/month",
+};
+
+const OPERATION_LABEL: Record<string, string> = {
+  sales_briefing: "Sales briefing + next best actions",
+  next_best_actions: "Next best actions refresh",
+  ask_aeromind: "Ask AeroMind",
+  conversation_analysis: "Conversation analysis",
+  follow_up_email_individual: "Individual follow-up email",
+  follow_up_campaign_per_recipient: "Follow-up campaign message",
+  lead_scoring: "Lead / ICP scoring",
+  system: "System",
 };
 
 export default async function SettingsPage() {
@@ -20,15 +31,24 @@ export default async function SettingsPage() {
   if (!current) redirect("/onboarding");
 
   const supabase = await createClient();
-  const [{ data: profile }, { data: subscription }] = await Promise.all([
+  const [{ data: profile }, wallet, { data: history }] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", current.user.id).single(),
-    supabase.from("subscriptions").select("*").eq("org_id", current.org.id).maybeSingle(),
+    getCurrentWallet(current.org.id),
+    supabase
+      .from("credit_transactions")
+      .select("id, amount, status, kind, operation_key, created_at")
+      .eq("org_id", current.org.id)
+      .order("created_at", { ascending: false })
+      .limit(15),
   ]);
 
-  const growthLink = process.env.GROWTH_PAYMENT_LINK;
-  const scaleLink = process.env.SCALE_PAYMENT_LINK;
+  const professionalLink = process.env.PROFESSIONAL_PAYMENT_LINK;
+  const businessLink = process.env.BUSINESS_PAYMENT_LINK;
   const canEdit = current.role === "owner" || current.role === "admin";
-  const plan = subscription?.plan ?? "starter";
+  const plan = wallet?.plan ?? "free";
+  const remaining = wallet ? Math.max(0, wallet.remaining) : 0;
+  const allowance = wallet?.monthly_allowance ?? 0;
+  const usedPct = allowance > 0 ? Math.min(100, Math.round(((allowance - remaining) / allowance) * 100)) : 0;
 
   return (
     <>
@@ -46,16 +66,72 @@ export default async function SettingsPage() {
           Current plan: <strong>{PLAN_LABEL[plan] ?? plan}</strong>
         </p>
         <p style={{ fontSize: 13.5, color: "var(--ink-2)", marginBottom: 16 }}>
-          AeroMind uses external payment links rather than an in-app checkout. Upgrading opens the payment
-          page in a new tab; your plan on this page updates once we&rsquo;ve confirmed the payment, not
-          automatically.
+          Every plan gets full access to AeroMind &mdash; credits are the only difference between them.
+          Upgrading opens payment in a new tab; your plan updates automatically once payment is confirmed.
         </p>
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-          <PlanButton href={growthLink} variant={plan === "growth" ? "ghost" : "primary"}>
-            {plan === "growth" ? "Current plan" : "Upgrade to Growth"}
+          <PlanButton href={professionalLink} variant={plan === "professional" ? "ghost" : "primary"}>
+            {plan === "professional" ? "Current plan" : "Upgrade to Professional"}
           </PlanButton>
-          <PlanButton href={scaleLink}>{plan === "scale" ? "Current plan" : "Upgrade to Scale"}</PlanButton>
+          <PlanButton href={businessLink}>{plan === "business" ? "Current plan" : "Upgrade to Business"}</PlanButton>
         </div>
+      </div>
+
+      <div className="card">
+        <h3>Usage</h3>
+        <p className="card-sub">
+          {Math.round(remaining).toLocaleString()} / {Math.round(allowance).toLocaleString()} credits remaining
+          {wallet?.billing_cycle_end ? ` · resets ${wallet.billing_cycle_end}` : ""}
+        </p>
+        <div
+          style={{
+            height: 8,
+            borderRadius: 999,
+            background: "rgba(14,27,42,.08)",
+            overflow: "hidden",
+            marginBottom: 20,
+          }}
+        >
+          <div
+            style={{
+              height: "100%",
+              width: `${usedPct}%`,
+              background: usedPct > 90 ? "#C2410C" : "var(--accent)",
+              borderRadius: 999,
+            }}
+          />
+        </div>
+
+        {history && history.length > 0 ? (
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Operation</th>
+                <th>Credits</th>
+                <th>Status</th>
+                <th>When</th>
+              </tr>
+            </thead>
+            <tbody>
+              {history.map((h) => (
+                <tr key={h.id}>
+                  <td>{OPERATION_LABEL[h.operation_key] ?? h.operation_key}</td>
+                  <td>{h.amount}</td>
+                  <td>
+                    <span className={`badge ${h.status === "committed" ? "ok" : h.status === "released" ? "" : "warn"}`}>
+                      {h.status}
+                    </span>
+                  </td>
+                  <td>{new Date(h.created_at).toLocaleString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <div className="empty">
+            <p>No credit usage yet.</p>
+          </div>
+        )}
       </div>
 
       <div className="card">

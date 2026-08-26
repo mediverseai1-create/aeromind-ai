@@ -9,9 +9,12 @@ export default function DeliverablesPage() {
       <Rise className="sec-head">
         <p className="eyebrow">Deliverables</p>
         <h2>
-          Three things, every run. <span className="soft">Written to be used, not filed.</span>
+          Three things, every briefing. <span className="soft">Written to be used, not filed.</span>
         </h2>
-        <p>However often you choose to run it, you get the same set.</p>
+        <p>
+          The Sales Briefing module is the center of AeroMind — whatever cadence you choose, every run hands
+          you the same set, and Next Best Actions turns it into a queue you can clear.
+        </p>
       </Rise>
 
       <Rise className="deliver">

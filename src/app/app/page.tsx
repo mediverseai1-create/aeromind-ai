@@ -12,6 +12,9 @@ import {
 } from "@/lib/analytics/compute";
 import RevenueTrendChart from "@/components/dashboard/RevenueTrendChart";
 import RankBarChart from "@/components/dashboard/RankBarChart";
+import BriefingPanel from "@/components/dashboard/BriefingPanel";
+import NextBestActionsList from "@/components/dashboard/NextBestActionsList";
+import { isAiConfigured } from "@/lib/ai/gemini";
 
 export const metadata = { title: "Dashboard — AeroMind AI" };
 
@@ -61,6 +64,23 @@ export default async function DashboardPage() {
   const topCustomers = rankBy(data, "customer").slice(0, 6);
   const declining = decliningCustomers(data).slice(0, 5);
   const risk = computeConcentrationRisk(data);
+
+  const { data: latestAnalysis } = await supabase
+    .from("analyses")
+    .select("id, report_md, strategy_md, action_plan_md, created_at")
+    .eq("org_id", current.org.id)
+    .eq("dataset_id", dataset.id)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const { data: nextBestActions } = latestAnalysis
+    ? await supabase
+        .from("next_best_actions")
+        .select("id, title, reason, priority, status")
+        .eq("analysis_id", latestAnalysis.id)
+        .order("priority", { ascending: false })
+    : { data: [] as never[] };
 
   const currency = (n: number) =>
     n.toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 });
@@ -176,15 +196,9 @@ export default async function DashboardPage() {
         )}
       </div>
 
-      <div className="card">
-        <h3>Report, strategy &amp; action plan</h3>
-        <p className="card-sub">The AI-written narrative for this run.</p>
-        <div className="coming-soon">
-          <b>AI analysis — coming soon.</b> The numbers above are computed live from your data. Turning them
-          into a written report, strategy and action plan needs an AI provider key, which hasn&rsquo;t been
-          configured for this workspace yet. See the README for how to add one.
-        </div>
-      </div>
+      <BriefingPanel datasetId={dataset.id} initialAnalysis={latestAnalysis ?? null} aiConfigured={isAiConfigured()} />
+
+      {latestAnalysis && <NextBestActionsList actions={nextBestActions ?? []} />}
     </>
   );
 }

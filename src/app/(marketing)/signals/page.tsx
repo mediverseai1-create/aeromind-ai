@@ -72,9 +72,12 @@ export default function SignalsPage() {
       <Rise className="sec-head">
         <p className="eyebrow">What it finds</p>
         <h2>
-          Six things AeroMind looks for <span className="soft">in every file you upload.</span>
+          Six things the Sales Briefing looks for <span className="soft">in your data, every run.</span>
         </h2>
-        <p>You don&rsquo;t tell it what to check. It reads the whole file and reports back on all six.</p>
+        <p>
+          You don&rsquo;t tell it what to check. It reads the whole picture and reports back on all six — then
+          Next Best Actions and Follow-Up AI turn what it finds into things your team can actually do.
+        </p>
       </Rise>
 
       <Rise className="deliver" style={{ gridTemplateColumns: "1fr 1fr" }}>

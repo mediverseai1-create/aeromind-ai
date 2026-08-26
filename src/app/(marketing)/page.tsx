@@ -3,32 +3,67 @@ import Rise from "@/components/marketing/Rise";
 import CadenceCard from "@/components/marketing/CadenceCard";
 import AskLine from "@/components/marketing/AskLine";
 
+const LOOP = ["Find", "Prepare", "Converse", "Understand", "Follow Up", "Close", "Retain", "Grow"];
+
 export default function HomePage() {
   return (
     <div>
       <div className="wrap hero">
         <Link className="pill" href="/how">
-          <b>New</b> Set your own reporting rhythm
+          <b>New</b> Five AI modules, one sales memory
           <span className="chev" aria-hidden="true">
             &rsaquo;
           </span>
         </Link>
         <h1>
-          The <em>AI sales analyst</em> for teams with <em>more data than time</em>
+          The <em>AI sales team</em> for teams with <em>more pipeline than time</em>
         </h1>
         <p className="sub">
-          Upload your sales file. AeroMind tells you what&rsquo;s working, what&rsquo;s slipping, and what
-          to do next to grow the revenue you already have.
+          AeroMind finds who to talk to, preps you before the call, listens to what happened, chases the
+          follow-up, and tells your whole team what to do next — one system with memory, not six disconnected
+          tools.
         </p>
         <div className="hero-cta">
           <Link className="btn btn-primary btn-lg" href="/signup">
-            Upload your first export
+            Start free
           </Link>
-          <Link className="btn btn-ghost btn-lg" href="/signup">
-            Sign up
+          <Link className="btn btn-ghost btn-lg" href="/how">
+            See how it works
           </Link>
         </div>
-        <p className="hero-note">CSV &middot; XLSX &middot; CRM export</p>
+        <p className="hero-note">Sales data &middot; calls &middot; leads &middot; one workspace</p>
+
+        <Rise className="cadence" style={{ maxWidth: 980 }}>
+          <div className="cadence-card" style={{ padding: "26px 24px" }}>
+            <p className="eyebrow">The loop AeroMind runs on</p>
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 8,
+                justifyContent: "center",
+                marginTop: 18,
+              }}
+            >
+              {LOOP.map((stage, i) => (
+                <span key={stage} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span className="pill" style={{ cursor: "default" }}>
+                    {stage}
+                  </span>
+                  {i < LOOP.length - 1 && (
+                    <span aria-hidden="true" style={{ color: "var(--mute)" }}>
+                      &rarr;
+                    </span>
+                  )}
+                </span>
+              ))}
+            </div>
+            <p style={{ textAlign: "center", marginTop: 18, color: "var(--ink-2)", fontSize: 15.5 }}>
+              Every stage feeds the next. A prospect who says &ldquo;call me in September&rdquo; gets
+              remembered, followed up automatically, and briefed back to you when it&rsquo;s time.
+            </p>
+          </div>
+        </Rise>
 
         <CadenceCard />
       </div>
@@ -38,11 +73,11 @@ export default function HomePage() {
           <Rise className="sec-head center">
             <p className="eyebrow">What AeroMind looks for</p>
             <h2>
-              Your numbers are already talking. <span className="soft">Most teams only hear the total.</span>
+              Your pipeline is already talking. <span className="soft">Most teams only hear the total.</span>
             </h2>
             <p>
-              AeroMind reads your sales file, shows you what&rsquo;s working and what isn&rsquo;t, and gives
-              you a plan to scale what already works.
+              AeroMind reads your sales data, your calls and your pipeline, and turns all of it into one
+              briefing — what&rsquo;s working, what isn&rsquo;t, and what your team should do next.
             </p>
           </Rise>
           <Rise className="grid">
@@ -88,26 +123,36 @@ export default function HomePage() {
       <section>
         <div className="wrap">
           <Rise className="sec-head">
-            <p className="eyebrow">From file to action</p>
+            <p className="eyebrow">Five modules, one memory</p>
             <h2>
-              Three steps. <span className="soft">No data project required.</span>
+              Not six separate tools. <span className="soft">One system that remembers everything.</span>
             </h2>
           </Rise>
           <Rise className="steps">
             <div className="step">
-              <span className="num">STEP 01</span>
-              <h4>Upload your file</h4>
-              <p>A sales spreadsheet or a CRM export. It doesn&rsquo;t have to be tidy.</p>
+              <span className="num">01 &middot; UNDERSTAND</span>
+              <h4>Sales Briefing</h4>
+              <p>What changed, what&rsquo;s working, what&rsquo;s at risk — written for you, not buried in a dashboard.</p>
             </div>
             <div className="step">
-              <span className="num">STEP 02</span>
-              <h4>AeroMind reads it</h4>
-              <p>It checks performance, trends, opportunities and risks across the whole file.</p>
+              <span className="num">02 &middot; CLOSE</span>
+              <h4>Next Best Actions</h4>
+              <p>Every insight resolves to a concrete action, with the reason attached and a button to take it.</p>
             </div>
             <div className="step">
-              <span className="num">STEP 03</span>
-              <h4>You get the plan</h4>
-              <p>A report, a strategy to scale what&rsquo;s working, and steps to take this week.</p>
+              <span className="num">03 &middot; FOLLOW UP</span>
+              <h4>Follow-Up AI</h4>
+              <p>Who needs a follow-up, why, when, and what to say — from first lead to dormant account.</p>
+            </div>
+            <div className="step">
+              <span className="num">04 &middot; CONVERSE</span>
+              <h4>Conversations</h4>
+              <p>Upload a call recording or transcript and get a full breakdown: objections, intent, next steps.</p>
+            </div>
+            <div className="step">
+              <span className="num">05 &middot; FIND</span>
+              <h4>Lead Finder AI</h4>
+              <p>Learns your ideal customer from who already buys, and scores new candidates against it.</p>
             </div>
           </Rise>
           <Rise className="hero-cta" style={{ marginTop: 36, justifyContent: "flex-start" }}>
@@ -125,7 +170,7 @@ export default function HomePage() {
             <h2>
               Not a dashboard to figure out. <span className="soft">A plan you can act on.</span>
             </h2>
-            <p>Every run gives you the same three things, as often as you choose.</p>
+            <p>Every briefing gives you the same three things, as often as you choose.</p>
           </Rise>
           <Rise className="deliver">
             <div className="panel">
@@ -150,12 +195,12 @@ export default function HomePage() {
             </div>
             <div className="panel">
               <span className="tick" />
-              <h4>The action plan</h4>
-              <p>Clear steps, in the order to do them.</p>
+              <h4>Next best actions</h4>
+              <p>Not advice — a queue you can clear.</p>
               <ul>
                 <li>Named accounts and priorities</li>
-                <li>Who does it and what finished looks like</li>
-                <li>What to check on the next run</li>
+                <li>The reason behind every recommendation</li>
+                <li>One click to mark it done</li>
               </ul>
             </div>
           </Rise>
@@ -188,13 +233,14 @@ export default function HomePage() {
         <Rise className="band">
           <div className="inner">
             <p className="eyebrow">Your record</p>
-            <h2>Every analysis stays.</h2>
+            <h2>Every conversation stays.</h2>
             <p>
-              Reports, strategies and action plans are saved run after run — so you can see what you decided
-              last quarter, whether it worked, and what your data says now.
+              Briefings, follow-ups and conversations are saved run after run — so when a prospect says
+              &ldquo;call me back in September,&rdquo; AeroMind remembers, follows up, and briefs you back in
+              when it&rsquo;s time.
             </p>
             <Link className="btn btn-primary" href="/signup">
-              Start your first run
+              Start free
             </Link>
           </div>
         </Rise>
@@ -205,12 +251,12 @@ export default function HomePage() {
           <Rise>
             <p className="eyebrow">Get started</p>
             <h2>
-              Point it at your sales file. <span className="soft">See what you&rsquo;ve been missing.</span>
+              Minimum input. <span className="soft">Maximum action.</span>
             </h2>
-            <p className="sub">Upload one file and get your first report, strategy and action plan back.</p>
+            <p className="sub">Upload your sales data and get your first briefing and next best actions back.</p>
             <div className="hero-cta">
               <Link className="btn btn-primary btn-lg" href="/signup">
-                Upload your first export
+                Start free
               </Link>
               <Link className="btn btn-ghost btn-lg" href="/pricing">
                 See pricing

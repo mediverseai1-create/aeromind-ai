@@ -5,32 +5,35 @@ import PlanButton from "@/components/marketing/PlanButton";
 export const metadata = { title: "Pricing — AeroMind AI" };
 
 export default function PricingPage() {
-  const growthLink = process.env.GROWTH_PAYMENT_LINK;
-  const scaleLink = process.env.SCALE_PAYMENT_LINK;
+  const professionalLink = process.env.PROFESSIONAL_PAYMENT_LINK;
+  const businessLink = process.env.BUSINESS_PAYMENT_LINK;
 
   return (
     <div className="wrap page-top">
       <Rise className="sec-head center">
         <p className="eyebrow">Pricing</p>
         <h2>
-          Pay for the rhythm you need. <span className="soft">Change it any time.</span>
+          One product. <span className="soft">Credits for how much you use it.</span>
         </h2>
         <p>
-          Every plan includes the report, the strategy and the action plan. The difference is how often you
-          can run them and how much data you bring.
+          Every plan gets the full platform — briefings, next best actions, follow-up AI, conversations and
+          lead finder. The only difference is your monthly credit allowance, and credits refresh automatically
+          every billing cycle.
         </p>
       </Rise>
 
-      <Rise className="plans">
+      <Rise className="plans" style={{ gridTemplateColumns: "repeat(3,1fr)" }}>
         <div className="plan">
-          <h4>Starter</h4>
-          <div className="price">Free</div>
-          <p className="desc">One file, one full analysis. See what it finds before you pay anything.</p>
+          <h4>Free</h4>
+          <div className="price">
+            $0 <small>/month</small>
+          </div>
+          <p className="desc">Enough to see AeroMind work on your own data before you pay anything.</p>
           <ul>
-            <li>1 analysis</li>
-            <li>Up to 1,000 rows</li>
-            <li>Report, strategy and action plan</li>
-            <li>10 questions about your data</li>
+            <li>200 credits every month</li>
+            <li>Every module: briefing, follow-up AI, conversations, lead finder</li>
+            <li>Unlimited historical data, unlimited team members</li>
+            <li>No feature is locked behind a higher plan</li>
           </ul>
           <Link className="btn btn-ghost" href="/signup">
             Start free
@@ -38,54 +41,61 @@ export default function PricingPage() {
         </div>
         <div className="plan feature">
           <span className="tag">Most chosen</span>
-          <h4>Growth</h4>
+          <h4>Professional</h4>
           <div className="price">
             $47 <small>/month</small>
           </div>
-          <p className="desc">For a team running a weekly or monthly sales rhythm.</p>
+          <p className="desc">For a team running AeroMind as part of the week, not the occasional check-in.</p>
           <ul>
-            <li>Weekly, biweekly, monthly, quarterly, biannual and annual runs</li>
-            <li>Up to 50,000 rows per file</li>
-            <li>Unlimited questions</li>
-            <li>Full analysis history</li>
-            <li>3 team members</li>
+            <li>4,000 credits every month</li>
+            <li>Everything in Free, with room to run it daily</li>
+            <li>Follow-up campaigns across your whole pipeline</li>
+            <li>Priority support</li>
           </ul>
-          <PlanButton href={growthLink} variant="primary">
-            Choose Growth
+          <PlanButton href={professionalLink} variant="primary">
+            Choose Professional
           </PlanButton>
         </div>
         <div className="plan">
-          <h4>Scale</h4>
+          <h4>Business</h4>
           <div className="price">
             $97 <small>/month</small>
           </div>
-          <p className="desc">For teams who want a read every morning, not every Monday.</p>
+          <p className="desc">For teams running AeroMind across every rep, every deal, every call.</p>
           <ul>
-            <li>Everything in Growth, plus daily runs</li>
-            <li>Up to 500,000 rows per file</li>
-            <li>Multiple data sets side by side</li>
-            <li>10 team members</li>
+            <li>11,000 credits every month</li>
+            <li>Everything in Professional, at team scale</li>
+            <li>Heaviest users: daily briefings plus regular conversation analysis</li>
             <li>Priority support</li>
           </ul>
-          <PlanButton href={scaleLink}>Choose Scale</PlanButton>
-        </div>
-        <div className="plan">
-          <h4>Enterprise</h4>
-          <div className="price">Custom</div>
-          <p className="desc">For larger sales organisations with their own requirements.</p>
-          <ul>
-            <li>Unlimited rows and team members</li>
-            <li>Custom analysis rules</li>
-            <li>Single sign-on</li>
-            <li>Dedicated support</li>
-          </ul>
-          <Link className="btn btn-ghost" href="/contact">
-            Talk to us
-          </Link>
+          <PlanButton href={businessLink}>Choose Business</PlanButton>
         </div>
       </Rise>
 
       <Rise className="faq">
+        <details>
+          <summary>What&rsquo;s a credit?</summary>
+          <p>
+            A unit of AI work. Generating a briefing, analysing a call, scoring a lead or writing a follow-up
+            email each cost a small, published number of credits — normal things like viewing a saved report,
+            browsing your dashboard or changing settings never cost anything.
+          </p>
+        </details>
+        <details>
+          <summary>Do credits roll over?</summary>
+          <p>
+            No — your allowance refreshes to the full amount at the start of each billing cycle. This keeps
+            the pricing simple and predictable rather than letting balances accumulate indefinitely.
+          </p>
+        </details>
+        <details>
+          <summary>What happens when I run out?</summary>
+          <p>
+            AeroMind tells you before it happens, not after. Once you&rsquo;re out, AI operations pause until
+            your next reset or until you upgrade — nothing is ever charged twice, and your existing reports
+            and data stay fully accessible either way.
+          </p>
+        </details>
         <details>
           <summary>Do I need my data in a particular format?</summary>
           <p>
@@ -98,16 +108,8 @@ export default function PricingPage() {
           <p>Yes, at any time. Moving up takes effect immediately; moving down takes effect at your next billing date.</p>
         </details>
         <details>
-          <summary>What happens to my past reports if I cancel?</summary>
-          <p>You can export everything before your account closes. After that, your data is deleted according to the schedule on the privacy page.</p>
-        </details>
-        <details>
           <summary>Is my sales data used to train anything?</summary>
           <p>No. Your data is used to produce your analysis and nothing else. See the security page for the detail.</p>
-        </details>
-        <details>
-          <summary>Can I run more than one business or dataset?</summary>
-          <p>Yes on Scale and Enterprise. Starter and Growth cover one data set at a time.</p>
         </details>
       </Rise>
 
