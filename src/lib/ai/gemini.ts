@@ -25,7 +25,7 @@ function getClient() {
 export async function callGeminiJson<T>(prompt: string): Promise<T> {
   const genAI = getClient();
   const model = genAI.getGenerativeModel({
-    model: process.env.GEMINI_MODEL || "gemini-2.5-flash",
+    model: process.env.GEMINI_MODEL || "gemini-3.6-flash",
     generationConfig: { responseMimeType: "application/json" },
   });
 
@@ -48,7 +48,7 @@ export async function callGeminiJson<T>(prompt: string): Promise<T> {
 export async function callGeminiJsonWithAudio<T>(prompt: string, audioBase64: string, mimeType: string): Promise<T> {
   const genAI = getClient();
   const model = genAI.getGenerativeModel({
-    model: process.env.GEMINI_MODEL || "gemini-2.5-flash",
+    model: process.env.GEMINI_MODEL || "gemini-3.6-flash",
     generationConfig: { responseMimeType: "application/json" },
   });
 
@@ -65,7 +65,7 @@ export async function callGeminiJsonWithAudio<T>(prompt: string, audioBase64: st
 /** Plain prose response (not JSON) — used for the meeting brief. */
 export async function callGeminiText(prompt: string): Promise<string> {
   const genAI = getClient();
-  const model = genAI.getGenerativeModel({ model: process.env.GEMINI_MODEL || "gemini-2.5-flash" });
+  const model = genAI.getGenerativeModel({ model: process.env.GEMINI_MODEL || "gemini-3.6-flash" });
   const result = await model.generateContent(prompt);
   return result.response.text();
 }
