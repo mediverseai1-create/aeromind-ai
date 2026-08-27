@@ -21,6 +21,7 @@ export type OperationKey =
   | "conversation_analysis"
   | "follow_up_email_individual"
   | "follow_up_campaign_per_recipient"
+  | "follow_up_queue_generation"
   | "lead_scoring"
   | "system";
 export type NextBestActionType =

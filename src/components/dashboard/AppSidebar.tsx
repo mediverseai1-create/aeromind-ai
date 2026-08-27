@@ -8,6 +8,7 @@ import { signOutAction } from "@/app/actions/auth";
 const LINKS = [
   { href: "/app", label: "Dashboard", exact: true },
   { href: "/app/upload", label: "Upload data" },
+  { href: "/app/follow-ups", label: "Follow-Up AI" },
   { href: "/app/history", label: "History" },
   { href: "/app/ask", label: "Ask AeroMind" },
   { href: "/app/settings", label: "Settings" },

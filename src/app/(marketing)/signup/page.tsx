@@ -23,6 +23,7 @@ export default function SignUpPage() {
       password: values.password,
       options: {
         data: { full_name: values.fullName, company: values.company || null },
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=/onboarding`,
       },
     });
 
