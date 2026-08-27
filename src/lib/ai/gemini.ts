@@ -38,3 +38,34 @@ export async function callGeminiJson<T>(prompt: string): Promise<T> {
     throw new Error("Gemini returned a response that wasn't valid JSON.");
   }
 }
+
+/**
+ * Same as callGeminiJson, but with an inline audio clip attached — used to
+ * analyze uploaded call recordings directly (Gemini accepts audio input
+ * natively). Keep clips under ~15MB; larger files should go through the
+ * Files API instead, which this helper doesn't implement.
+ */
+export async function callGeminiJsonWithAudio<T>(prompt: string, audioBase64: string, mimeType: string): Promise<T> {
+  const genAI = getClient();
+  const model = genAI.getGenerativeModel({
+    model: process.env.GEMINI_MODEL || "gemini-2.5-flash",
+    generationConfig: { responseMimeType: "application/json" },
+  });
+
+  const result = await model.generateContent([{ text: prompt }, { inlineData: { data: audioBase64, mimeType } }]);
+  const text = result.response.text();
+
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    throw new Error("Gemini returned a response that wasn't valid JSON.");
+  }
+}
+
+/** Plain prose response (not JSON) — used for the meeting brief. */
+export async function callGeminiText(prompt: string): Promise<string> {
+  const genAI = getClient();
+  const model = genAI.getGenerativeModel({ model: process.env.GEMINI_MODEL || "gemini-2.5-flash" });
+  const result = await model.generateContent(prompt);
+  return result.response.text();
+}

@@ -25,9 +25,9 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AeroMind AI — the AI sales analyst for teams with more data than time",
+  title: "AeroMind AI — the AI sales team for teams with more pipeline than time",
   description:
-    "AeroMind reads your sales file, shows you what's working and what's slipping, and gives you a plan to scale what already works.",
+    "AeroMind finds who to talk to, preps you before the call, listens to what happened, chases the follow-up, and tells your team what to do next — one system with memory.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

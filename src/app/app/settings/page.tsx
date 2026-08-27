@@ -32,7 +32,7 @@ export default async function SettingsPage() {
   if (!current) redirect("/onboarding");
 
   const supabase = await createClient();
-  const [{ data: profile }, wallet, { data: history }] = await Promise.all([
+  const [{ data: profile }, wallet, { data: history }, { data: plans }] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", current.user.id).single(),
     getCurrentWallet(current.org.id),
     supabase
@@ -41,6 +41,7 @@ export default async function SettingsPage() {
       .eq("org_id", current.org.id)
       .order("created_at", { ascending: false })
       .limit(15),
+    supabase.from("credit_plans").select("*").eq("is_active", true).order("price_usd", { ascending: true }),
   ]);
 
   const professionalLink = getProfessionalPaymentLink();
@@ -64,17 +65,31 @@ export default async function SettingsPage() {
       <div className="card">
         <h3>Plan &amp; billing</h3>
         <p className="card-sub">
-          Current plan: <strong>{PLAN_LABEL[plan] ?? plan}</strong>
+          Current plan: <strong>{PLAN_LABEL[plan] ?? plan}</strong> &mdash; every plan gets the full platform;
+          credits are the only difference. Upgrading opens payment in a new tab; your plan updates automatically
+          once payment is confirmed.
         </p>
-        <p style={{ fontSize: 13.5, color: "var(--ink-2)", marginBottom: 16 }}>
-          Every plan gets full access to AeroMind &mdash; credits are the only difference between them.
-          Upgrading opens payment in a new tab; your plan updates automatically once payment is confirmed.
-        </p>
-        <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-          <PlanButton href={professionalLink} variant={plan === "professional" ? "ghost" : "primary"}>
-            {plan === "professional" ? "Current plan" : "Upgrade to Professional"}
-          </PlanButton>
-          <PlanButton href={businessLink}>{plan === "business" ? "Current plan" : "Upgrade to Business"}</PlanButton>
+        <div className="plans" style={{ marginTop: 8, gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))" }}>
+          {(plans ?? []).map((p) => {
+            const isCurrent = p.id === plan;
+            const link = p.id === "professional" ? professionalLink : p.id === "business" ? businessLink : undefined;
+            return (
+              <div className={`plan${isCurrent ? " feature" : ""}`} key={p.id} style={{ padding: "20px 18px" }}>
+                {isCurrent && <span className="tag">Current plan</span>}
+                <h4>{p.display_name}</h4>
+                <div className="price" style={{ fontSize: 26 }}>
+                  ${p.price_usd}
+                  <small>/month</small>
+                </div>
+                <p className="desc">{Math.round(p.monthly_credits).toLocaleString()} credits / month</p>
+                {!isCurrent && p.id !== "free" && (
+                  <PlanButton href={link} variant={p.id === "professional" ? "primary" : "ghost"}>
+                    Upgrade to {p.display_name}
+                  </PlanButton>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
 

@@ -22,7 +22,9 @@ export type OperationKey =
   | "follow_up_email_individual"
   | "follow_up_campaign_per_recipient"
   | "follow_up_queue_generation"
+  | "meeting_brief"
   | "lead_scoring"
+  | "icp_derivation"
   | "system";
 export type NextBestActionType =
   | "contact_customer"
@@ -357,20 +359,20 @@ export interface Database {
           conversation_id: string;
           org_id: string;
           summary: string | null;
-          key_topics: Record<string, unknown> | null;
+          key_topics: string[] | null;
           buyer_intent: BuyerIntent | null;
-          buyer_intent_evidence: Record<string, unknown> | null;
+          buyer_intent_evidence: string[] | null;
           sentiment: Sentiment | null;
-          objections: Record<string, unknown> | null;
-          questions_asked: Record<string, unknown> | null;
-          commitments: Record<string, unknown> | null;
-          next_steps: Record<string, unknown> | null;
+          objections: string[] | null;
+          questions_asked: string[] | null;
+          commitments: string[] | null;
+          next_steps: string[] | null;
           follow_up_date: string | null;
-          decision_criteria: Record<string, unknown> | null;
-          competitors_mentioned: Record<string, unknown> | null;
-          people_mentioned: Record<string, unknown> | null;
-          deal_risks: Record<string, unknown> | null;
-          opportunities: Record<string, unknown> | null;
+          decision_criteria: string[] | null;
+          competitors_mentioned: string[] | null;
+          people_mentioned: string[] | null;
+          deal_risks: string[] | null;
+          opportunities: string[] | null;
           recommended_next_action: string | null;
           created_at: string;
         },
