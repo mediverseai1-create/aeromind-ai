@@ -24,9 +24,10 @@ export default function AboutPage() {
           built on what&rsquo;s already working for you, and a list of things to do next.
         </p>
         <p>
-          We built it for the people who own the number: founders, sales leads and small commercial teams who
-          don&rsquo;t have an analyst on staff and don&rsquo;t want a dashboard project. The aim is simple.
-          Open the email, read the plan, get on with the week.
+          We built it for the people who own the number — VPs of Sales, RevOps leaders and commercial teams
+          running pipeline across dozens of reps and thousands of accounts. Building this in-house takes a
+          data team most companies don&rsquo;t have budget to hire. AeroMind is that system, governed and
+          ready on day one, without the build.
         </p>
         <h3 className="blk">What we believe</h3>
       </Rise>

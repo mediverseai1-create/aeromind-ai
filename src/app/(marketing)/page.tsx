@@ -10,18 +10,18 @@ export default function HomePage() {
     <div>
       <div className="wrap hero">
         <Link className="pill" href="/how">
-          <b>New</b> Five AI modules, one sales memory
+          <b>Platform</b> One system of record for revenue, not six disconnected tools
           <span className="chev" aria-hidden="true">
             &rsaquo;
           </span>
         </Link>
         <h1>
-          The <em>AI sales team</em> for teams with <em>more pipeline than time</em>
+          The <em>AI revenue platform</em> built for teams that can&rsquo;t afford to <em>lose a deal to disorganization</em>
         </h1>
         <p className="sub">
-          AeroMind finds who to talk to, preps you before the call, listens to what happened, chases the
-          follow-up, and tells your whole team what to do next — one system with memory, not six disconnected
-          tools.
+          AeroMind unifies your pipeline, every call, and every follow-up into a single governed system of
+          record — surfacing what&rsquo;s working, what&rsquo;s at risk, and exactly what your team should do
+          next, account by account, rep by rep.
         </p>
         <div className="hero-cta">
           <Link className="btn btn-primary btn-lg" href="/signup">
@@ -31,11 +31,11 @@ export default function HomePage() {
             See how it works
           </Link>
         </div>
-        <p className="hero-note">Sales data &middot; calls &middot; leads &middot; one workspace</p>
+        <p className="hero-note">Structured pipeline data &middot; call intelligence &middot; workspace-level security</p>
 
         <Rise className="cadence" style={{ maxWidth: 980 }}>
           <div className="cadence-card" style={{ padding: "26px 24px" }}>
-            <p className="eyebrow">The loop AeroMind runs on</p>
+            <p className="eyebrow">The AeroMind operating model</p>
             <div
               style={{
                 display: "flex",
@@ -59,8 +59,9 @@ export default function HomePage() {
               ))}
             </div>
             <p style={{ textAlign: "center", marginTop: 18, color: "var(--ink-2)", fontSize: 15.5 }}>
-              Every stage feeds the next. A prospect who says &ldquo;call me in September&rdquo; gets
-              remembered, followed up automatically, and briefed back to you when it&rsquo;s time.
+              Every stage feeds the next automatically. A prospect who says &ldquo;call me back in
+              September&rdquo; is remembered without a spreadsheet, followed up on schedule, and briefed back
+              to your team the moment it matters.
             </p>
           </div>
         </Rise>
@@ -76,8 +77,9 @@ export default function HomePage() {
               Your pipeline is already talking. <span className="soft">Most teams only hear the total.</span>
             </h2>
             <p>
-              AeroMind reads your sales data, your calls and your pipeline, and turns all of it into one
-              briefing — what&rsquo;s working, what isn&rsquo;t, and what your team should do next.
+              AeroMind reads your sales data, every call, and your entire pipeline, and turns it into one
+              governed briefing — what&rsquo;s working, what isn&rsquo;t, and exactly what your team should do
+              next.
             </p>
           </Rise>
           <Rise className="grid">
@@ -125,7 +127,7 @@ export default function HomePage() {
           <Rise className="sec-head">
             <p className="eyebrow">Five modules, one memory</p>
             <h2>
-              Not six separate tools. <span className="soft">One system that remembers everything.</span>
+              Not six disconnected tools. <span className="soft">One system built to run your revenue motion.</span>
             </h2>
           </Rise>
           <Rise className="steps">
@@ -159,6 +161,35 @@ export default function HomePage() {
             <Link className="btn btn-ghost" href="/how">
               See how it works
             </Link>
+          </Rise>
+        </div>
+      </section>
+
+      <section>
+        <div className="wrap">
+          <Rise className="sec-head">
+            <p className="eyebrow">Built for teams that can&rsquo;t get this wrong</p>
+            <h2>
+              Governed by design. <span className="soft">Not bolted on afterward.</span>
+            </h2>
+            <p>Every workspace is isolated at the database level — not just hidden behind a screen.</p>
+          </Rise>
+          <Rise className="vals">
+            <div className="val">
+              <span className="tick" />
+              <h4>Workspace isolation, enforced in the database</h4>
+              <p>Row-level security scopes every query to your organization — access control isn&rsquo;t a frontend check that can be bypassed.</p>
+            </div>
+            <div className="val">
+              <span className="tick" />
+              <h4>Role-based access for the whole team</h4>
+              <p>Owners, admins and members see the same system — with the right level of control for each.</p>
+            </div>
+            <div className="val">
+              <span className="tick" />
+              <h4>Your data stays yours</h4>
+              <p>Uploaded files, calls and conversations are used to run your workspace and nothing else — never to train shared models.</p>
+            </div>
           </Rise>
         </div>
       </section>
@@ -233,11 +264,11 @@ export default function HomePage() {
         <Rise className="band">
           <div className="inner">
             <p className="eyebrow">Your record</p>
-            <h2>Every conversation stays.</h2>
+            <h2>Nothing about your pipeline gets lost.</h2>
             <p>
-              Briefings, follow-ups and conversations are saved run after run — so when a prospect says
-              &ldquo;call me back in September,&rdquo; AeroMind remembers, follows up, and briefs you back in
-              when it&rsquo;s time.
+              Briefings, follow-ups and conversations are saved run after run, visible to your whole team — so
+              when a prospect says &ldquo;call me back in September,&rdquo; AeroMind remembers, follows up, and
+              briefs the right person back in when it&rsquo;s time.
             </p>
             <Link className="btn btn-primary" href="/signup">
               Start free
